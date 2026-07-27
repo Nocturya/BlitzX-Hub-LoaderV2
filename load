@@ -1,88 +1,111 @@
-print("OMG")
-local _6fe1a5f58b_x1455=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
-local _6fe1a5f58b_r1559=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
-local _6fe1a5f58b_d3335=function(h,k,rot)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=v end end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_6fe1a5f58b_x1455(t[i],k) out[i]=string.char(_6fe1a5f58b_r1559(v,rot)) end return table.concat(out) end
-local _6fe1a5f58b_s49c2=function(h,k,rot)return _6fe1a5f58b_d3335(h,k,rot) end
+print("GO")
+local _62664aeccf_x1592=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
+local _62664aeccf_r2b76=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
+local _62664aeccf_fhdaa3=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
+local _62664aeccf_l181b7=function(data,k,rot)local t={} for i=1,#data do t[i]=string.byte(data,i) end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_62664aeccf_x1592(t[i],k) out[i]=string.char(_62664aeccf_r2b76(v,rot)) end return table.concat(out) end
+local _62664aeccf_df556=function(h,k,rot)return _62664aeccf_l181b7(_62664aeccf_fhdaa3(h),k,rot) end
+local _62664aeccf_s3117=function(h,k,rot)return _62664aeccf_df556(h,k,rot) end
 
-local _6fe1a5f58b_ks9d5e=function(key,len,seed)seed=seed or 165 local state=(key*1103515245+seed)%4294967296 local out={} for i=1,len do state=(state*1103515245+12345)%4294967296 out[i]=math.floor(state/65536)%256 end return out end
-local _6fe1a5f58b_d2d0a7=function(data,key)local ks=_6fe1a5f58b_ks9d5e(key,#data) local out={} for i=1,#data do local n=string.byte(data,i) n=_6fe1a5f58b_x1455(n,ks[i]) n=(n-((key+i-1)%256))%256 n=((n*16)%256)+math.floor(n/16) out[i]=string.char(n) end return table.concat(out) end
-local _6fe1a5f58b_s2e5b9=function(h,k1,rot,k2)local mid=_6fe1a5f58b_d3335(h,k1,rot) return _6fe1a5f58b_d2d0a7(mid,k2) end
+local _62664aeccf_ks38a0=function(key,len,seed)seed=seed or 165 local state=(key*1103515245+seed)%4294967296 local out={} for i=1,len do state=(state*1103515245+12345)%4294967296 out[i]=math.floor(state/65536)%256 end return out end
+local _62664aeccf_l2f200=function(data,key)local ks=_62664aeccf_ks38a0(key,#data) local out={} for i=1,#data do local n=string.byte(data,i) n=_62664aeccf_x1592(n,ks[i]) n=(n-((key+i-1)%256))%256 n=((n*16)%256)+math.floor(n/16) out[i]=string.char(n) end return table.concat(out) end
+local _62664aeccf_d221a3=function(data,key)return _62664aeccf_l2f200(data,key) end
+-- ORDRE CORRECT : layer2_decode PUIS layer1_decode
+local _62664aeccf_s23053=function(h,k1,rot,k2)local mid=_62664aeccf_l2f200(_62664aeccf_fhdaa3(h),k2) return _62664aeccf_l181b7(mid,k1,rot) end
 
-local _6fe1a5f58b_cf6da=function()local s=_6fe1a5f58b_s2e5b9('34c9b6e75ab8b219d49a265e433a868ada4728520d056c1f2a1768348d7b27a53474387421797f5e660eab0b37072e3925cf47d792708bcc799fe9175c4c7f6a213aba1ccf2d3ac15628e3aa3fbb8021557d37d4262c208a6692c1644bd3e321',139,2,103) local x,sum=0,0 for i=1,#s do local b=string.byte(s,i) x=_6fe1a5f58b_x1455(x,(b*i)%256) sum=(sum+b*(i+3))%65536 end local got=x*65536+sum local ok=(got==9586543) local aa=625 local bb=1250 ok=ok and ((aa*bb-aa*bb)==0) return ok end
-local _6fe1a5f58b_jcc54=function()local a=251 local b=a*(2) return (a*b-a*b)==0 end
+local _62664aeccf_ce2b7=function()
+    local s=_62664aeccf_s23053('b5f94858b4f8edce2a1e3aa8066be12dadb2f0309d814271b84cbc50d9848a3295d8bd8867c6f37067dd935f327b687b0a6186dc958a73df80cd9a45568bd7c50352506495995a59b562ce6bc672b95bad525f72f3d85b22577e332540a74aa8',107,6,73)
+    local x,sum=0,0
+    for i=1,#s do
+        local b=string.byte(s,i)
+        x=_62664aeccf_x1592(x,(b*i)%256)
+        sum=(sum+b*(i+3))%65536
+    end
+    local got=x*65536+sum
+    local ok=(got==750999)
+    local aa=247 local bb=1235
+    ok=ok and ((aa*bb-aa*bb)==0)
+    return ok
+end
+local _62664aeccf_j8fd4=function()local a=396 local b=a*(5) return (a*b-a*b)==0 end
 
 local __dbg=function(m)pcall(function()print("[OBF-v2]",m)end)end
 __dbg("boot")
-if not _6fe1a5f58b_cf6da() then __dbg("sig fail") return end
-__dbg("sig ok")
+-- Auto-test de la sécurité (vérifie que le check fonctionne vraiment)
+local __sec_ok = _62664aeccf_ce2b7()
+if not __sec_ok then
+    __dbg("sig fail")
+    return
+end
+__dbg("sig ok + security verified")
 
-local _6fe1a5f58b_vmba9a_bc={687865856,16777216,16843008,16908800,16974592,0,17040384,671088898,687931392,721420288}
-local _6fe1a5f58b_vmba9a_C={'0a6ef5f5f4960ba52d514c118de6552999d40f26d9064db5ed876038d7aa017cdba5cfbe2c5eae393416b03f047f22c958a960474a479e9b5dcb9fd7d6da4580ab69d2cfe2dbbf4da9e97f3d8316add49c253679a0055f9f1d5833b96355c08f33efa8fa69c7130e930efca15eb6f72d20b032dbf42adb79b65b61cda449bf49a6ed6df83b0730ac657e435fe83c5135c33bb4b41ddd387903b963e35891d04b526347749f41543267af649eb5b2486da49233929f2e1dfa248ab526f92ec9474b31b5159f2d8ae9d20fc28c0d9235d19de7fea47896502e542b6f19270fa1e2a21389b0e941ace9cf17c5eec48f2f2a4eea7bc9623fc2fceee3e7f7345b65b75b54a326faad351bdb645d2a049ad14741d0f786f6aaf70fa633c932a077694da9d8771df043189ead143108e769c2862a097bdc4788d6a74232565c5b9ae7b1b9b765f35d2d0b667af520cd805ca29ffc697b0fabd8e850963a25dd3582d7c05e80f5f45ad81b9a001d13a03603e7556f6a59ad4823e7ddeeaea286bc36d02971e53c41a21dcfb76351e104e8185b9d4ca50dd1104fd4c37b59a8408dae75455b67298ee5d67a15b91260fdc0f10bb2a867437b68338758724e525d0aa4057557fd9fa81812d07f038912edfff6840b1a58c098a07ac4f39814870f56ce42b7a014f7e33939d690cf5de793677f90483f92b3457d00bd01ddb0dac6de27adbe87ca54d5edc31c551c51954f8b7e42abb174f8cd82422b9f431b33a0e82e3a49d7f1337c3b7ac47854ac6a45c7e50afeb45204662a50f6487fb01b218fcab396a9fe999528ec2de283fd948d7d179d8c84857e09661fd6183c90e7af53859b3056bdb64dd4527621b5a24a7f08e945c1b9b6428b668058f1bf3bc346eef9eb9cee36ad53f7867666fadef23744c53e590588f25bf91296eb0c1765fee13c40eddc67ab5e4896ae53eb4288e017af43a881156723cf66e83934a1693f2c8ba3db95dc87a8fe3a44da0701fd6a2fa505ad4d310b9c2d90458aedd439d1e22c1c52cd8612fb6cf80c81a5131c8e0b1bebeab0d78661546520b3d3ab3513dfd6f8f380b657cb5fd1dc0aae5f0945b90df3f9c24b78a8cc5e081ea6d1fdff6e41354546732e0002dcf7546955704132abd8403f9905ed4eaf337412f76cfe5ea7db6e669732d211f6eaf145d727244e99c728fd19c7a8147c996c1a7728d8a091cfa834618e131061475a0f457e9c07ec915a153369ca1255c0aac0ac03d8964adbabcd7b51d9bca24c615b24b97b8cdff420e314cb3bfac6c6d1de2238e9e76759d040eb2900464e6f1ef9459ef7d108fcca559700ddf1f30af955fc632487b5b96245ecd2b96ac9a82f1723a91b88639e1363138c04a5829e50081f288828d6452082828097c0b792206946ab4c1a47725f49e0e78667a5e729f81fdb5dd04ca54b55336f4c84dd49a7b90cd55b4f7f8496a2825743cbd80ee6346a756d055fe6cfb882870721ae0960bc279bdba7fc89887992c60c86ab4acf88412c1f27e48ccacbf6e9b406d8f7ce82c3f1944723806809d4fea312f244af515ad5203a9dc5a3a43c693e621033ce41a9bb6cda0674031625d204e446e3b35121d9e7ba9264c8b7cbef7af4400ef8a278ab24c546b958a73af38a3f575e75168e234d5296c541419b5a611b4604a2bed0c6219319faac4dd1043efa9de9f7aa68ad32f325b4078fd06a5a1cb4c6d78856509a74d7361dcde42d5eda1dd201981d2912b9fca7bd00faec78972ac759d5f785bad847a463912c9b46fff80aaedc586fc71b02497108ee11ecc4ac356e1c31ea31f8908c94073604fb29d324e0d12d8a3c31a0d4d023d08a494d8b1961e474df5caba9c868d615ffd0ef056a6db1ad143c67e21562ed0ab7dd32d0340a1207a103f472ba8db4e77eb645f1fbf07157422341ba287f0035e08805d3b6cc4586ca2c49e4e11f64597852c064e05c6cb40d6780d2561d986f1be358541543c884314e00fd8bd9ed1fd594e3bebf1fb0fb8e1fd8e63ce2a520300a9181009b89983a36d8e5760f75ca7223e9bc938d89ca7e792c279e9410eb099128c773f2756e8aaa777786732e16723acad06e8ce961e0522da086c73f23db732ef111c8e6ae58bb382c0b22a3cdba2a296893035bd8fcf9f3ff4a572461d7bb36d2dc7ec74823272acbf5c0d4327958f18c89bfa3c884e1fbaa424278d5b712b48ecfe164da54310579a6a266d6c0d1d2e9fbfec54345e9851e8c81d14f9ba25f018c41e55f5bf3716a5d7dce1ff76c019909f40abe71874ab9a3d315866bcf460af24bde915c5b965d4dbf11bc766882cf0df745c69227004958663239279ec80b4768d5b88e2696d03841f281d55d5fd783e0f82f33c371c9d8e49353ca8cd629b69a9b46f752e0af458919b7a2748fd695c7e8253d4fda95a9b9f9b7f8ff4fd73b9f7d7b9f472b2c1efaf4e004714b59b592cc41c1b3d141b0819e50862ceec06612479c1ac135d01ca70326ac95654d61751994ddfc80ba6fa4a548c458c5096b948d822e5b88b76651643d331682334b6e6eb81de2c7fc603e6b58a7b61347b3b931767ff75028ab627cc2d22ddb52ae6207cbd01578aaaa83ad61bc8bc8974b134bad26c1f7704bfdf272410bd20c6ef7316097a5c3a3d34a0e04fa5ec0e67578725ec8fbba9b17489abc017677060a02b4e7d2c4c8856f757049970f14fb41c2282a89857f256c1c77228d7329da51dd0b9a913be7b8f88f3744fd69bab2d729940990944ea482fc9a5dc20190cb27c74a05b2c201a90133864fedffb0207d497ed90dcab3ee97ef6b7982c90f5258d86d32f9390133a13b6d4a247cff5b8d91c5b655efa0cf4cc153e009ed1e9ef427d7431f0e271fdb1980e9e1f7a7cb86e4ea275b1d6f599342e35a00768d4c0dc2a83b7f83e11c1710623a92837683dd7c7dc3fec8e8afff9687866b6b9f45727577d2fd2d989783bb562fd6afb1a5614cb1e2693a0dd130e2024d6dc97dff6664ab1261098db75eba5b1bd457ae54199861ca45985d05fec711627f2314e3cb5df5a9246c5ff89dbc030ad5f9c046d50291a5dced63bf639f6448d69c7d49f5719e071c3f161bddb65bbcc346b439e7989fa4a903208d68b767a835ba8f083082d88394d5bb4c13b69e10b987c017118b9b7b29d2dceebebddecadc68841f18b14f7697a0518d82cd7bf98c7d8758b2b8a4db2b09c7182ff05c03f97503b6e2a3e40ce30968d66f44d8e6a2d854a15fe11bd8661c584658dfbe7b49558224c268d085695dc89d3cf72092564c05b15ed43c9c004ad10e1e10ace935f833fd4ba4eb5f711021dc9a448e523866163c58dce191cdba688f82417f01e95cb488c90bdc03ab5a82d3c10143e54c6e24dd10d800ef8487bb1b9326f8d2ba4103b428495b03700097f853c7010fc19418768291094a3a2a722f3a65ec7d7252399469a3ed8f3dbd7f4c3333128794b46a56885b64b00da58eba5431ae4de47f51bd071b0de8d79f0d3ee54348128641f665c879b6a027d3cc92beb7ed5f0fc4dc211ddb4a36325e81ab281caef2639ed3a64572fe22b96b9f78856bc836c59267e0f751a6a728c8545286f78d6bf5c0e3d9efeb3c2e97698afe39f73b149ff161a5840cb4cd20055a3b563ff2385b3af5a4e72fd0320231f4fec0d88b99c4206e0ab2cf15cba444495c3417c813da8706',100,6,108,4788787}
-local _6fe1a5f58b_vmba9a_S={}
-local _6fe1a5f58b_vmba9a_pc=1
-local _6fe1a5f58b_vmba9a_int=0
+local _62664aeccf_vmd2c7_bc={687865856,16777216,16843008,704643072,16908800,16974592,17040384,0,671088898,687931392,721420288}
+local _62664aeccf_vmd2c7_C={'01c691dc7c0b9dcddcca4f7ed29ded64ed18fec020f13f8e3b15980d0bc2747d3c737eebd76c2336241f6af79261618c6ee619196da6ed2d46756bb324f43b623f4615334df76af50a5962a1ebace137041376946ebafe7a8e3ba19e37bbb09b9f9f0fc43e5c59b5fd3e8cbbebcf469bda05656d1653be9ed62b63965cfaf9bc9af7301cff09c532a20abe7cd2a623652b62be669eee94541368f81f145b7a7cd17ab2155b9cee492933220fce0a7741db7967b727c8792236ed542e2f9543d21f4a9820c808a9142fc80c400cac33b2be28174df7fa0cd223e96d709b3a0d5b7a3c2cfc8beebfb36ae0687af37b16869b334946b9b61537a07c07ecf6e5d5dd2f8d463fba490ab072ad8f5bf2e3a695f046c36190e381d9696bb4fef234bd9ce9cf46031f88a89949ada70a570b33844860d4bf6e6a12c588ac34c32e05e68332b1ae1c3d44cc1a94d960e33aa48deed5068aa47165ee7206054db68ef5865148af8aef56fa18a116aabeee2505cef6bcd519a4817641901a5d6a57d5704f66f67c5ef9fe7010ed6a4f44971310141b10a18dcb22ae4f11d4b53d8ac7cad1240b67639b413af42aad2ec65e92dbf52f1732c9466a0b59d1b157c810e71bd049abf162961e4b56f95fb6771464a71a26314feb7afdfc742f44f2e2485b5e3d0c99d7eb2d917e3b64d62643442693cb4572677b2ffeff53ba0ff3a9e79e15606c7be106945df86ea6f0bbbdfc84356fc329eb91cfe5a0e43544cf5191bedb666bcff1cd44c187f1348cf4527dab6e4b80898b1fa8e6bcc07651658c4f731db7e87b9f84b422cc17d421edf1a95ec28694a42a9838fd8497bc2067e595b32c08e159b29c85e92968fcdc1120f6479e117dec4bc687f12951be1779722d0a0337316324ebb102e5d179528de8670eb072efb8de51348373f8c868528bb2b56a03094794a65eb383de71561c3680e228a3c877da2a42957521ee816411b3af594bf0d2b80e96be0140b427fe4715a4009883a1001125dfac86b1cf1e2f434f3649323de4d800a393c7b3f0af1f642d5e4548699447bbd088aa8645bf7a03e6ac6c58a670690e47bbf972b8ec45214404a0d4a9ffd75bfd8332f2debc425a1c87e434f68d886d6604f679a3dd79d80a889394b46c79dcb2701122c3b07a0801abd531097d38ce11d8523fc3770c6e730ef55f31e09fb08e171489a13f0aecda0615e16c2733c6353fde6203665aefcf25a0edf1464375d23201057b5c71c2ef17daf86c820fd8710fb4a67b84d9a48eb405420a542571640e742510963bbb9296f4f2342488417c2679e1866fb80127356a37d40b4d064f984fce1282c0742b162b7f328c0714af8e0fa1d5bc73fde8065edf2c603a47b55e6e09c68efd2772dcd8785cef4118fe10d1f9f4af3e57916269661b38b568813d2f7ad595172e0667fb7d11317db9e64751ddbdb63b50309f71a157bb49ac780da7f94257c455381cefe5681bc4b54b90eec70da32f37a45c277ca100b4261b992d13a578c53901b26c62c8fc3bea47c59e3c1677a92d6efb1e2089383ad8fe53fea6a8e5aee288f8b46d03fe3e62541484724670a0066ebe604aa2487fb0d8e8b670e5726c67dae530cb13a07ec09ffa89e4f84829efdb496802311a1a02b27b83d1c4debe8703b15926acff839ebd64f027ca191fe66c629104c0e3eba7a67e6c1569c76e3cadec142a11578939226491903abd24dc2cfba429d3179310fbb63bf2da8b74608564e003787da9bb0c848601ef5625203dd75caa8fd220848b00e7b073c43952337259380cdcd67b7e196d841c2dffcb3644e65f621b7c64744a860e74c314c2ba0b8d275abe971527a68d17f777ed97d094497d90864569d32dd37eb8b1c9f4171f464440db3de4601cf4973964b0e8375dd5baff2c497fc214ca734b1bb600da210a20e65a978553f69ce3a884d7a3e4d1eb4b44c1f35fc85d19072d4b736c9de4d4dcfd77d3195b46b41888f8f00eac490bb542a586d915d7a8c8b501e992dc3d29a6dc7f3ee9c8657a18dbc0eb6ff4c184ffb3dfd419e4c4ff0b616d74f73e3e43b7be9ecedef436ae2459fb8b19c6d1daf8df5df3f7a9a0c29acd5f05984e794bbf8f729217cd0cb22f512f12ef7577a1790fc0bea18cddbe1cd0764235430931f02a822de5f727694dbca6c2662d935b1c65f34e7821fc8f3019156031e59c4471f17467ae704791e6e1ea0152decaf5d7d66871337c76f5fc71c0f169625e1575f1f0b2144ccd48f660cc3a1f81cd8a9205ff185f6925a20dd2257538000bddd468531b37ac96c162537e324ed566b4b86d684bc163bb2c89b8d5733a68de7d367d3a5279a89526167a415f29b1ec76b9fee91d55fce35718d639e86269d9f5f13cc150cb6b9f2ccdf477c2f08e15f2c907f3171198efd1172a3f6a40594ea4081dd303e3a13823b5ca1bcbe61186ac453034851568a08ec5717fe7452e0abc8d824d105fc61c9fb4cd695930caeb00291510e5a30e77e88c02e7b349f8693eb8d1535f8a75e6ae72817cc24edb34807f6b0363eee10b59eb3c87c99b34727844288cb422d5615bd88466832147b242474cc21cdd1a2b88a1b023c934071b5b5b6b2ffccf04dc1a4cb17a8701d090c2e9238e4027b29bcc8d0bb2b54a663c9732e8f21a2b33ad8fb31ac40827c48eb5f4cde317cdd7f908e26b5021dbb9fe1890135da8c175d9d2671979fd2ba6539a39fc82f62b784ec0a5bda9ed3b1afc7ba1262059a349e7191a781c8d4f4d3614b7f81b3c7456aa5ea9edbceecea9a433f19db75be44b108371051db3fa456bc904a4e22279f6177f300be9ea6b514783a25986930eccc8f48ebcc136b32bd33707267f47d28ba7b6013ab12f91d5abcc25e77290a1215895922122a0a097cc3942565c160633908cc0d23fee4f26b2365782067cba65c36b514dfd75080d1411826d3da5c62de3d42dca93d157f873f23f3eeadb0b1b4d01b66737456b298a6e6e366ed5efb1f267364cbde2ba6090b226ca062f1010b79d6ac893d2f276dc5604f7c2ea5ae8ff784e91b5a2113e9d9022204f22e42aa35064564992ce5c0713e664c4f53bceb3b3f98d3f91274aa813281acf0c419e8b656e6039d1ce829aeb8998f30279ffb926c2b937433de112d59336d8925cf512759639f4eba6558d0cac6a559fdb4b82d0d70064df7279c32fd80e999b4825ec1fb49b3d207c185e2239d8ba964451badb44ec6f729be5bf486920965c0fcf0492d03fb260c4df1e45f028bd8c762c5af986d6c12339ddc13be98f42943aa836f80c980427dbdaf1000f4b025df1da4f3dbea7974d2f32daec5443d4056577125ad45d1977982462f5852aa8b60269d56df71e3970315ccbc033384b94561f29d174371c76bbaaefb96208019ee0c2bb08a13d6631a7b04e02c15a9d0f81e8a63196bbec533911b32bb6843a3139063216380b2e37431c56df0f899b093bc8ec70a588ea526cc3d84a232e4b9223becf74dd8d17ca314d5cb939793d2b8a218c7fbb75a7f7aead02c286157ca7d8c52832e87b3c2548f2aae38a744e5529d7fd7dd607dc0012a34ff37ce7f400cc0d9ac836048e384b227b7245dee03bc8311ac2d19d0dc97cb214d373cb111a70e5104b48d32aff4b14c303acf1d01901cb2d97af9ea980e3084e3c1b5675309ea5317083ce16fbe797bb9e41e9fa7a507b0f803bfba4f55d9267dd14b418d02fae9982421bfa4430fa9189eb40b34e1017ff4bacca3cb447f48992438695e6f83270d3dfcc8b1f34f5caadb32a2b8ac543030b8e0379a7122d0a2d5e52f8717b8827aea0c78e375af07b425fda788fa89af1864e4879c07d50a8685df0a7f5dc113c8c1970732f26ab4e7ac67a6ca45baba2bfda3fffaf7ea9a7ecf6853b11ebdf512d3583653f0de1280710137c397891397e0ca6b4e84cd306290feac25eb5980dc6eb92dca476801165696bdc27f3deecc9b592ea91d741b6d88a21bcbb09b1a3dde6ba7725e12c68fd8f77810d09945fac134cd779b8699653cf8be229a67c74b4761bfb0c0a69fecb7afbe6aa029e3e68894e3f5c777c6de272ce7ed3e39aff9475fd8968ee87c1fc82e6cb8ccc80b01d1dfa9eeed3d53b14ecbd09e52a2ab71231b379cb905c912be84dcb63e434d1525c422dca880ff371bb4a8b4a1f20031ef814587af0bd3b2e9b46980f1c46b9ac1200eaffebc4027d5b93990efd134c6726582815f4a8a9220036756945a6394d5e277dafa84911dd3eb52c63b565dfd8fe85ccfaeb11a469ccd467ade50073455cdec337d2bf0b913f72bb6a6a656880cee25d6198dca911af97f4132c64a54c675794bc5ab8197e0533add1f654fdaf256b1d790a89e78664ec0f55dc6d2aa021d7675464d60da3b6f56c904424282692ea76ccbf37579575fa94c4dab5af1e16b526155cb550b2b1301733060aa2e31ce56a6f2725dac2a63bde74235bc32e993c75547e20889f941096b18fbe69ded0c1c9acba3cddbd5784f41a7c26dd24dd42',5,6,111,12815300}
+local _62664aeccf_vmd2c7_S={}
+local _62664aeccf_vmd2c7_pc=1
+local _62664aeccf_vmd2c7_int=0
 
-local function _6fe1a5f58b_vmba9a_run()
-    while _6fe1a5f58b_vmba9a_pc <= #_6fe1a5f58b_vmba9a_bc do
-        local _2ca42980c32=_6fe1a5f58b_vmba9a_bc[_6fe1a5f58b_vmba9a_pc]
-        local _cc95664ed1b=math.floor(_2ca42980c32/16777216)%256
-        local _deffbf519a5=math.floor(_2ca42980c32/65536)%256
-        local _efa3e260f61=math.floor(_2ca42980c32/256)%256
-        local _51e3327b263=_2ca42980c32%256
-        _6fe1a5f58b_vmba9a_pc=_6fe1a5f58b_vmba9a_pc+1
+local function _62664aeccf_vmd2c7_run()
+    while _62664aeccf_vmd2c7_pc <= #_62664aeccf_vmd2c7_bc do
+        local _9f1ff18837e=_62664aeccf_vmd2c7_bc[_62664aeccf_vmd2c7_pc]
+        local _50a2f34c1f6=math.floor(_9f1ff18837e/16777216)%256
+        local _0a2db75f6c0=math.floor(_9f1ff18837e/65536)%256
+        local _518879674ad=math.floor(_9f1ff18837e/256)%256
+        local _2b7cd178141=_9f1ff18837e%256
+        _62664aeccf_vmd2c7_pc=_62664aeccf_vmd2c7_pc+1
 
-        if _cc95664ed1b==0 or _cc95664ed1b==42 then
+        if _50a2f34c1f6==0 or _50a2f34c1f6==42 then
             -- intentional dead / padding
-        elseif _cc95664ed1b==1 then
-            local idx=_efa3e260f61+_51e3327b263*256
-            _6fe1a5f58b_vmba9a_S[_deffbf519a5+1]=_6fe1a5f58b_vmba9a_C[idx+1]
-        elseif _cc95664ed1b==2 then
-            _6fe1a5f58b_vmba9a_S[_deffbf519a5+1]=_6fe1a5f58b_vmba9a_S[_efa3e260f61+1]
-        elseif _cc95664ed1b==3 then
-            _6fe1a5f58b_vmba9a_S[_deffbf519a5+1]=(_efa3e260f61~=0)
-            if _51e3327b263~=0 then _6fe1a5f58b_vmba9a_pc=_6fe1a5f58b_vmba9a_pc+1 end
-        elseif _cc95664ed1b==41 then
-            _6fe1a5f58b_vmba9a_int=_6fe1a5f58b_vmba9a_int+1+_deffbf519a5
-            if _6fe1a5f58b_vmba9a_int < 0 then return end
-        elseif _cc95664ed1b==40 then
+        elseif _50a2f34c1f6==1 then
+            local idx=_518879674ad+_2b7cd178141*256
+            _62664aeccf_vmd2c7_S[_0a2db75f6c0+1]=_62664aeccf_vmd2c7_C[idx+1]
+        elseif _50a2f34c1f6==2 then
+            _62664aeccf_vmd2c7_S[_0a2db75f6c0+1]=_62664aeccf_vmd2c7_S[_518879674ad+1]
+        elseif _50a2f34c1f6==3 then
+            _62664aeccf_vmd2c7_S[_0a2db75f6c0+1]=(_518879674ad~=0)
+            if _2b7cd178141~=0 then _62664aeccf_vmd2c7_pc=_62664aeccf_vmd2c7_pc+1 end
+        elseif _50a2f34c1f6==41 then
+            _62664aeccf_vmd2c7_int=_62664aeccf_vmd2c7_int+1+_0a2db75f6c0
+            if _62664aeccf_vmd2c7_int < 0 then return end
+        elseif _50a2f34c1f6==40 then
 
-        local mid=_6fe1a5f58b_d3335(_6fe1a5f58b_vmba9a_S[0+1],_6fe1a5f58b_vmba9a_S[1+1],_6fe1a5f58b_vmba9a_S[2+1])
-        _6fe1a5f58b_vmba9a_S[0+1]=_6fe1a5f58b_d2d0a7(mid,_6fe1a5f58b_vmba9a_S[3+1])
+        local cipher=_62664aeccf_fhdaa3(_62664aeccf_vmd2c7_S[0+1])
+        local mid=_62664aeccf_l2f200(cipher,_62664aeccf_vmd2c7_S[3+1])
+        _62664aeccf_vmd2c7_S[0+1]=_62664aeccf_l181b7(mid,_62664aeccf_vmd2c7_S[1+1],_62664aeccf_vmd2c7_S[2+1])
 
-            local s=_6fe1a5f58b_vmba9a_S[0+1]
+            local s=_62664aeccf_vmd2c7_S[0+1]
             local x,sum=0,0
             for i=1,#s do
                 local b=string.byte(s,i)
-                x=_6fe1a5f58b_x1455(x,(b*i)%256)
+                x=_62664aeccf_x1592(x,(b*i)%256)
                 sum=(sum+b*(i+3))%65536
             end
             local got=x*65536+sum
-            if got~=_6fe1a5f58b_vmba9a_S[4+1] then
+            if got~=_62664aeccf_vmd2c7_S[4+1] then
                 error("VM integrity",0)
             end
-        elseif _cc95664ed1b==43 then
+        elseif _50a2f34c1f6==43 then
             break
         else
             return
         end
     end
 
-    local decoded=_6fe1a5f58b_vmba9a_S[0+1]
+    local decoded=_62664aeccf_vmd2c7_S[0+1]
     if type(decoded)~="string" or #decoded<1 then
         error("VM empty",0)
     end
-    local _5976ed9128c,_7f371fa05b8=loadstring(decoded)
-    if not _5976ed9128c then
-        error("VM: "..tostring(_7f371fa05b8),0)
+    local _1c008a94864,_298724afb74=loadstring(decoded)
+    if not _1c008a94864 then
+        error("VM: "..tostring(_298724afb74),0)
     end
-    local _c35bd0b90de,_1f5526c975c=pcall(_5976ed9128c)
-    if not _c35bd0b90de then
-        error("VM runtime: "..tostring(_1f5526c975c),0)
+    local _5c0db1b8081,_41055ec7826=pcall(_1c008a94864)
+    if not _5c0db1b8081 then
+        error("VM runtime: "..tostring(_41055ec7826),0)
     end
-    return _1f5526c975c
+    return _41055ec7826
 end
 
-local _c35bd0b90de,_1f5526c975c=pcall(_6fe1a5f58b_vmba9a_run)
-if not _c35bd0b90de then
+local _5c0db1b8081,_41055ec7826=pcall(_62664aeccf_vmd2c7_run)
+if not _5c0db1b8081 then
     return
 end
