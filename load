@@ -1,24 +1,145 @@
+print('lol')
+local _aeb97741af_xaa61=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
+local _aeb97741af_r16cf=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
+local _aeb97741af_fh565d=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
+local _aeb97741af_l1dde4=function(data,k,rot)local t={} for i=1,#data do t[i]=string.byte(data,i) end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_aeb97741af_xaa61(t[i],(k+(i-1)*7)%256) out[i]=string.char(_aeb97741af_r16cf(v,rot)) end return table.concat(out) end
+local _aeb97741af_d8eb0=function(h,k,rot)return _aeb97741af_l1dde4(_aeb97741af_fh565d(h),k,rot) end
+local _aeb97741af_s6bf2=function(h,k,rot)return _aeb97741af_d8eb0(h,k,rot) end
 
-local _3650438e0e_x559d=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
-local _3650438e0e_r7843=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
-local _3650438e0e_fhdfab=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
-local _3650438e0e_l1669b=function(data,k,rot)local t={} for i=1,#data do t[i]=string.byte(data,i) end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_3650438e0e_x559d(t[i],k) out[i]=string.char(_3650438e0e_r7843(v,rot)) end return table.concat(out) end
-local _3650438e0e_d2614=function(h,k,rot)return _3650438e0e_l1669b(_3650438e0e_fhdfab(h),k,rot) end
-local _3650438e0e_s658c=function(h,k,rot)return _3650438e0e_d2614(h,k,rot) end
+local _aeb97741af_xs70f6=function(s)s=s%4294967296 s=_aeb97741af_xaa61(s,(s*8192)%4294967296) s=_aeb97741af_xaa61(s,math.floor(s/131072)) s=_aeb97741af_xaa61(s,(s*32)%4294967296) return s%4294967296 end
+local _aeb97741af_ks5577=function(key,len,seed)
+    seed=seed or 42405
+    local state=((key*2654435769)+seed)%4294967296
+    local out={}
+    for i=1,len do
+        state=_aeb97741af_xs70f6(state)
+        local mixed=_aeb97741af_xaa61(state,_aeb97741af_xaa61(math.floor(state/65536),(i*2246822519)%4294967296))
+        out[i]=math.floor(mixed/256)%256
+    end
+    return out
+end
+local _aeb97741af_l2fdeb=function(data,key)
+    local ks=_aeb97741af_ks5577(key,#data)
+    local out={}
+    for i=1,#data do
+        local n=string.byte(data,i)
+        n=_aeb97741af_xaa61(n,ks[i])
+        n=(n-((key+i-1)%256))%256
+        n=((n*16)%256)+math.floor(n/16)
+        out[i]=string.char(n)
+    end
+    return table.concat(out)
+end
+local _aeb97741af_d2f11b=function(data,key)return _aeb97741af_l2fdeb(data,key) end
+local _aeb97741af_s2e79a=function(h,k1,rot,k2)
+    local mid=_aeb97741af_l2fdeb(_aeb97741af_fh565d(h),k2)
+    return _aeb97741af_l1dde4(mid,k1,rot)
+end
 
-local _3650438e0e_cea5d=function()
-    local s=_3650438e0e_s658c('a5a9f0ece8ecb9f4e8d4e0e0a5d4d4f8fcd4e4f0d0b9e8fcf8b9e8f4b5f8fca1e4d0fca9a9f0d0f4ecb5d0e4d4a9b9a9e4f0e4e8b9b9bdf8bda1f8a1e0a5b9a1d4bdb9d0a9f0d0b9b5d0f0fcd4f8ece0b5e4d0a9fca1e0e0a5e4fcf0d0ecf0d4',48,2)
+local _aeb97741af_c334f=function()
+    local s=_aeb97741af_s2e79a('6653e6126c5d94c958e81e4ab6d44f2ff6bea997c3bdf78a2da493ebeee303375c4ad55883f8768de05bc3620f8a817f566b7c8ece954d4fba717a2933aed8e25f0ea5fe1e40416b33e32fc49963cb92c4da2ea3a2b2ff6d6b91d83c1ac294e4',89,4,137)
     local x,sum=0,0
     for i=1,#s do
         local bb=string.byte(s,i)
-        x=_3650438e0e_x559d(x,(bb*i)%256)
+        x=_aeb97741af_xaa61(x,(bb*i)%256)
         sum=(sum+bb*(i+3))%65536
     end
     local got=x*65536+sum
-    local ok=(got==13512627)
-    local aa=248 local bb=992
+    local ok=(got==2453052)
+    local aa=406 local bb=1218
     ok=ok and ((aa*bb-aa*bb)==0)
-    return ok,got,13512627,#s
+    return ok,got,2453052,#s
 end
-local _3650438e0e_jfe5c=function()local a=251 local b=a*(3) return (a*b-a*b)==0 end
-local _dc54be1cd57={};local _25b13226371=setmetatable({},{__index=function(_,k)return _dc54be1cd57[k]end,__newindex=function()end,__metatable="Locked"});_dc54be1cd57[_3650438e0e_s658c('35708858afd2d67645807ebd',36,4)]=hookfunction;_dc54be1cd57[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)]=print;_dc54be1cd57[_3650438e0e_s658c('f434337d082b78b83c003a5d',83,4)]=warn;if _25b13226371[_3650438e0e_s658c('35708858afd2d67645807ebd',36,4)] then _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)](_3650438e0e_s658c('140c0000087c541050',65,2))if _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)] then _25b13226371[_3650438e0e_s658c('f434337d082b78b83c003a5d',83,4)](_3650438e0e_s658c('7c3c4c4c574c0cd4',86,3))local _4d3e913dd59=_3650438e0e_s658c('6665e7a53667e56536a56622a7a7a436a2e5662766a53666666d25a223e5',62,6) if _4d3e913dd59 then _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)](_4d3e913dd59)end end else _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)](_3650438e0e_s658c('686cd56c444c14',85,2))end
+local _aeb97741af_j76c0=function()local a=76 local b=a*(3) return (a*b-a*b)==0 end
+
+local _aeb97741af_beea4=function()
+    local ok=true
+    -- détection basique d'environnement suspect
+    if type(getfenv)=="function" then
+        local e=getfenv(0)
+        if e and (e.script==nil or e.game==nil) then ok=false end
+    end
+    if type(identifyexecutor)=="function" then
+        -- on laisse passer les exécuteurs connus, on bloque juste les environnements trop sales
+        local name=tostring(identifyexecutor()):lower()
+    end
+    return ok
+end
+
+local __sec_ok = _aeb97741af_c334f()
+if not __sec_ok then return end
+if not _aeb97741af_j76c0() then return end
+
+if not _aeb97741af_beea4() then return end
+
+local _aeb97741af_vm453b_bc={687865856,16777216,16843008,16908800,16974592,704643072,17040384,671088898,687931392,721420288,0}
+local _aeb97741af_vm453b_C={'7057e604a8cc97ff7aa57fd069afa2942db32407b10fe9b02f5a915da198c7101c5b040524ee3e25b4aa4eeeb281688aae130c7d2407c8662217466ef2b53e5d6409f82718892ba8ddd31848570410c48bf8e2d7d814ac09e69362ccaa8cd79fc28be8ad1e6572d1d8e9e6f19fc9eef335b0321b7422d29cbdeadfb2f1f2b74e722cbc4e84019a6b9fc0842d00fa5ece3336b6468786f4346bd6a53002704e20f8c9b5c43b0e74905b61aefd15a174db0f9b6c393144e295183faf2a05dcda9c5c4f2ecb0c242851a66458c84c83b9a8f87b67cee2d06bef5c4e125fa6d6a0c4f3c738bdd4bd524fea05f08e3cf7f4b03f46ad51b20a356b97bfca0cc4f3ffdc980f3d0e2751e9babc11eda7998f70e86b78c79ec68a63b0f95a745587481d5ee8b70fbe09ece20f6da7283f827ad2539c834064b7258dfe5224288d1b63512cad1c835cbcdb4a9e050fe10aedc756277df4f4d0c94e4993ae8d43e06206062e7c4eb3df2936f9bd01d3dd0c16ff816d0f2d2d5d19b0e67da6221d2cfe6d07d4cad7c3152ecec6c0060cf5a9e1fadf66c0161b8ba7cfe4312dbdbc520bdf7a558bad2e866efd8497a76f54444f815ad7f4bfe0990190613f4bf9c5333346806c60cd2d72dad3090f33c5c6f2ce534cee2c4c63c31188d2f2b61cfd0f0949bb0332419eb02c23ed0fa5f0e6bb78e03f0154a6e5a8a64ac8893b2540aad91d03852fc45968b36c8ea7f73d326a917f68e64df38ba40de3e0adef38761adbe4fc42e6f63f12dce816c86747665add17aef837ebbb960e8d4cc6eded411dde5b6c31e982ce908dcc8de16e0a1adad182256de42751972022579b58d863f12bbaf3a52c8b1e8e20c448a840516c0b1c2037dfea9623b9aa813eac183f865f80ef0821572ea0cb61d48a5401252c62257604cd6432c6619fed37d8899fb4a4edea7700d9831cb7f6ced9cda33833e13881a6885e9d599aff989e440ca22932f48ad0f38c35cad252db898ba5d51e771fa2d92ab320b714fd4ad9985b784c9b8c90ea718373da2ae19451a6058acf72103bf805f86bdf4aed3bd071964da4e161841f87db772aff777a236d8a0de595e6d8f91d0d5835b5a47a4a3c470840c47313b6412a8d62736e20012f937b5b0035bdd3370a2822b8a75de8f7ec43adeb99dee2dab4e6dc3d7c13df44ca419f57c0a2a0a41a5d3dd05982d87681516786da0531afc1c89aa8343c76051aa334da0683c5abea6de75bca8c6dd92c84daa7a3e9e6aecf89f8d4a33f140fb75e0aacb532da6d195413af92746c64f929ab525b04c3c08845ddc6a8e7ad8d825ecbcd23fd396d962d4c340cd47253b817b322211074cf144befbc609b11626f8c6da13891716ddc45f83b204cd87d13af5d0e6e264f3a86a0769a31ebf78e26008b3023dc9cee605863c440a1d385bf6731c780ca43449ed4a30dd7681793302a394850463a5d7e04239da14af01204c77ea93f573a187339c9db510efcfc997f0f525bae2d6058ec73ba5ae45a64e17b0b8a33ba60df3378bf2533fbadc8291d3921c0b44e2736ffbdf095bdbeb0ab67f3b06b7528f887fd3ededbb77bbe4fbfb42e110803ab9aa2978b358d78d6bb12ac86d87bcd9902cb75283e9964b76e36f2dfd659eb7e1d63cee050f65100235db33d75d70c163b3caa41b6307165397cd4cbcfaa7a29dd67a3f6a04863e343ff73fb04cce906ca010c69da3cc22ffd5627478d7791d27ce1ee1bc0be046fa90c7908efe7d8e5071f826fd15e625e929f0d5742904195ffc271f4541221779a89fb1285879ed9dbb77ba79e5b0acb53faf1e91f1133eeff8e59dcaafd458e146aa61e6f7dcacb07cf475ad64e98c10fba55592ace9c41a96cd01d87c99b6818cc58741e501410490b7e8013e811af65e4ca68bfc9fae69b35c014d95fe1eeea1409e450e0c95ec70ddbefbccdd240b253da324c6af68bf6f315560f838525b464019463c0dff655a4c80fc20ed89e690ef650fd0d6b85401ebd3c7012732affd89d8eb502b1452a32ac40a5564e92ab0a178b1fc7451efc2e2f5f5918def83bc0af3b353e62b2ba2d8dcf9af97692f0217ec311beb79831de0dff3f76065bad07f30def3dc197e68388e47214f62667cc8f9185b77518e7c71148d37bdda2e52c010d1fb271cc1a9991e41b6249cfae0082274f7984cb26e11ba453688d88890a366f20774269fd115f1427372d7503976bcdabcd9ef099cfe6b684b7da29d40125c30223a9b4a4d2d8771c641255b990ac5c81edf5e49cf9c39c4fd166038c6b2c021387264ed8f2db36a8a5b12454ac70dbcdea3a41df4949876fc2b0db039634c9415760e9cf1418041fb0e7cd0aedb4a88549713c553454a46cec9ef5f578df90b8619e88e9d45314ba3148df3196cbe19184fe056251ad778c8ca9ebdb8868ec55c325550eba43423988a08eda4839025cf99dc9876091cd0eedcc017f59d9da7d7df564475daeae672a20d21fa6e9c8eb62a30990493d50bfd5e71fe0647c7bf0f24228d5eebbb3661968e1a2b10b0508edf0ad61bf19fc0d1f97469f77048c87befb8e723c0c63ee305d2f26f1a202ca854a938f7a77306adfb22dc0f9babc0859b89289f729ecdcc4b988889688ce9b13dc8117de958a7c546b15752c039c49c68e46867ae31707105198022b5183e34059ee2ea700390818768a13608ade65b06dc5efde8466a0339ec49bd548f854f6a0bffc7551f00731e1c24758a9e6232256b12df46dbe15834dd4d94616cf693b0b1ee58f0616bb921e904eb690e18aaed37b7dffcb2c32d7d38c4b80c5dd4c2bffb2e1c8fad1b4d483e7444874a3d677b38aa91f415fbe37bc9074d17ccbf4e7b99a471142810a71b6c27d9aa5ea0b119cc2313608c2ff024003822f07570462c1449a74be4ee86dbc66ca876ae5640aa2a6c6940ab2d65ac028385ee405869d0f76802ed45e88f8c037bbad8ce634a34cb8ac5f6798484e826ba2578b9b2ddf61627f2d9fcf60fc9a6f02c505e7cb8c7574c2e4a2bab769db6cfeebe686fcc4297c8db85b0228ed37cd955accb360ed780f0899a3b061bf0da6868cdce59b63e59ddf3456d61bc11e9b0ba3230ba559b476442711e174110d04e2a21aa26532919075246bc9534fc87278e260e0de0ee17a01f6fdb538889828734769e7380b550804ca715aa93a13ab7242372067acb723f3496bfc2d803f974f764dbbb6d2176ea5d6a885aa4ea97d3fb6997cb9703ffc4abf32175478ac7864665d94d2f0776c04246aec99a8a4f468fee371a6ead06a5925e8256ec9415ddd7d002b4d9606adaf46ff6de52f394eeac000c0f4f3fe17fc4761484d03430b5c93171b7cace44b26f973d1708a19ec6195aee84322cb769efacc610b02c1db32a33c3a92a2c1b276276105f3c355beea043d826ef9378d8c9e31a0ddbc996af33acaeab4069f71d8a9d313ae7df40f0ed613771dcd4c6d71e1cacb748c16bf8a9f8651da5ab88e03c368c47a99e297471c8a3ce869e724981f66fd130e32b3accd3b7b2ed23da5a8e68a2b5982d9901bc5c809e77a1c54f48dbe8639160890191c4eaf9320b0584cab21cd6b68cd61eef0c04cadf7167bef4d159da49f8e811f6622eaf8f928e0bc9bce25a5e310ac1432817725ec0e223d6e7c9c2b19e3ecc40560c042175bda2bda64e4cde76fbe087564511ebc9e0d034f1b148f969e54f808f6fef6b7046fa7c984fb6c621dac9ed7d33e051624434d6fa53bba13090f8a25cae26937f69938ca06b691ce6b9e645626d9bb4f68a53624c4f3337399a8eb631b5bf331e2877f790a503afc189b7953a1d18cea1932b9bb620622197f7ed5c81ce2ebc8aed2600c0f3a9091c0c9d73992a8440af0315b13455f3298848907443d7dcd9772032d0082707e9dea808c235b863ec953962139e62f74cd7bff294ee03a07fe455809503c06d3f23a634658825796a246d6accd1d64d74121b5b827f187b044b74b06e8fd1105cd89ac922726535a66ac5903816320de2db2c78e375569f045596842890811f50c1cfbca803d4682b0123a68f50685033989d49b86c3150e8466240bf3d6566b8ffa767f513f8f3a178e8434604193370a9e7ad65b24a33e2aaf69de4209e20b1095c546212852efc4d4c5397213634d63c94de158df98f9c6e8f9de0d9b2453cac407a265680e55f34813cca091f55c689c44341f66833c6b3f38d61ecae3261ab92c181de8eb8bfee6e7858b452e6466310a7a61bed6ba63bb634e7a13b488ee380c4afcf4f7a477e0adf349299d870acc4c35eefb3c11294d4dd3b167e915a4743d4cafcacbc77dcf1d9819b925203f71f4efff61647b7268edd65f7e0858275e7b79fb1019ac2dca33bf63ba04c761b5b8d5dc2544f7a10b2054dbe5fef88926bef3fb27d2adfa58e74d417b642f42afda2cbcd1dab81eca704bdc2c5b638d0af6ee79e2c01edff7c86432db15c62cac4ed3bea15e74169651b9ee89b6098f5d949682de5108c0064149e2dde32bd0342b7a25df64fc057c116af52fc846d6e9181778e76777f6f71c729d9e2ac662c91dccf94f3c7c257f1bb83963595869edfa6e9cf7ac178e625da5cc965139cc3c2a69f8022586134fd216c5f43df906c3f9655531d7dfec622d2ff62e143315781a10bf017264aba79a98e8e9f95cb0c4f28d741fc3c2a004a50fea305776babb1aed4802d7326a4c698170adde83fd56c2097782ffce34688b3f899ed8fbf43584b9a79fefade35faebd5b45dd077220ecc6c84ff3086f3f841efc287c4a2f57e911737d6132916c0d0a4e4a1b554df3cb3c3bc12a66c402d67ce4ea91b594e2f8791fb3418809443d8f8d79439c395a77b5d2c511655e8e34fac8a774d4d457e542a1787af6245b0e819c55d913277d1bdaf116103d49fc5a675af1a9d7c25b53843f2ab406bf5684ce3b6c41f49c74d1a53d57131850bb7ca36bcf9ef4642bf5aaa660be83a9e7897528d7ea2f4fb529616fd3c6b617c61a3ee8746626407e9c5a9fea25d221acc04b665918bf07497adc2b096361114ab6a393136e64512a7f85e22d663f154de002788e01c13d284bb24d8d0b14fab44df3e3b4621a807e6831452afce544f63a160c2c3f2216b20deee5905de1a60ff926dd2439790cbfaf195d1c7060c217be8ac00a5be187b807fb183ee34e1a82a373fbcdfbfe829a0df7f05751a21f9ee4e6a5164d71a40462e277ecba69fc248f5b9271bbbd583473e7b98e68913e915761d6d340ad7a677bb43e8b0fcf78bb2ca5bc1fc306ec9d9688e5eaa7fbf1b62cd062f4fc1af014fb9a12d1a173dde64574944746191fdd8ce13f4eb3fe16fbfe825e001d1d85806188db33dc1370b8e8c07a3864351480c1fd22e6054496f9bba91c5a9c7e2c52a6bb425faffa7e04d486a48421a03b8e6fa40d68984d1a4a113e92e811b8bfec394214851ca10d613811308a6c8c2cb1871000b2f3eb2fdf538d13b3508333656382f911b1470df20772596bcc7d0d6586441cd7e340a2f1d5395495c5a36d3eb095ee61fcc7632ac44f2537d00a3da7bb444b347d8c11eca4db381ed81be3abf230f5472dc3d0fe042d087cf5de7dd987e903a8d8f07842d786bea6a42ac960a147c94593c6444a3193a4334a61dd962597c6eb8db75260b2953af2aa444caae786d3602df1c3f625d182dc69a21f756a7b364665692025b3e0ea008538dbb53b09ad66e3d4e2727849289e7563b98b6518718e688d53b47a1d0ab14316c493dc90d4207e636c92a39849c35848d5fb608961067f5c2b7fed605ada23ed955ba6041939929f6dbd786be745b451a3f93c0c8296e9e85a71a124482e5f3e8c66cddf3324fdfbdc9f092820d92c990657285b6c61858c78617173c8106a81a3664661e416e66b9cc69d768308d8f3ebbd5d8a29ca0034f00b378f20dc948fe987f8230bb4e809275ef41b026b6b540ae6f26aa78e6ed0fe68fcb3cd3808785cdeb0f91d61c1fcc6b974560fc4eaf880abc3d3742534d936ba9ccb599a56100fe589f79fc97aacdd74c97cd464b2ab1f5baf8171c29fd4a32d61a84c2fe3e7061f6567153175a7c09adea7b91fd60212a05bd772702035062a92953b567b13231197a99a942fd3d1e540637a0ecdf9202e01fdd130841773e8bb0ad815742d71ad327eb68530ae7be45237e837443437e3c2d6b005f841830ddbe9beca076d4257371c4f08901ffe7917d0ecc8cbd91be2e6e831b274dda777c1dd43001bc16c17b01935d5182c64b501f8b07e735282f1806de89e1be4c93b0f1fa8e003a47dae35ca4717e320964a9eb560409ad1cda680086b847c166fad62ffa2f418dd1e21e096878cb4372f19aeb044e11cd75bbceaa738ec0266c599b037da702a8c5360b55d729eae800da6aa2cab24ec99637afb4ffb9476032423c575152ad312e6c1698181860ad07d52a91816a20ddff0dc51bd32f4ef6a281d5756ff3bd40be1e22a8f1032adf6a808d8f7a7a1334f8cb8bdf1c4783f5bda35c306ad3c95f52c9c9104d59a75c195149e70a4d52dd013f1944dc99a6be1b45397bf5aa9da38cd183cadf320418c48e54337fd0092b8c0cc09589a12018d5f505cd171f2723fad89feb3d19801cd',134,5,86,7785767}
+local _aeb97741af_vm453b_S={}
+local _aeb97741af_vm453b_pc=1
+local _aeb97741af_vm453b_int=0
+
+local function _aeb97741af_vm453b_run()
+    while _aeb97741af_vm453b_pc <= #_aeb97741af_vm453b_bc do
+        local _ae931482bb9=_aeb97741af_vm453b_bc[_aeb97741af_vm453b_pc]
+        local _f354574eb8c=math.floor(_ae931482bb9/16777216)%256
+        local _eb7c7b5ae08=math.floor(_ae931482bb9/65536)%256
+        local _d5e8e465f26=math.floor(_ae931482bb9/256)%256
+        local _d2ba0d74735=_ae931482bb9%256
+        _aeb97741af_vm453b_pc=_aeb97741af_vm453b_pc+1
+
+        if _f354574eb8c==0 or _f354574eb8c==42 then
+        elseif _f354574eb8c==1 then
+            local idx=_d5e8e465f26+_d2ba0d74735*256
+            _aeb97741af_vm453b_S[_eb7c7b5ae08+1]=_aeb97741af_vm453b_C[idx+1]
+        elseif _f354574eb8c==2 then
+            _aeb97741af_vm453b_S[_eb7c7b5ae08+1]=_aeb97741af_vm453b_S[_d5e8e465f26+1]
+        elseif _f354574eb8c==3 then
+            _aeb97741af_vm453b_S[_eb7c7b5ae08+1]=(_d5e8e465f26~=0)
+            if _d2ba0d74735~=0 then _aeb97741af_vm453b_pc=_aeb97741af_vm453b_pc+1 end
+        elseif _f354574eb8c==41 then
+            _aeb97741af_vm453b_int=_aeb97741af_vm453b_int+1+_eb7c7b5ae08
+            if _aeb97741af_vm453b_int < 0 then return end
+        elseif _f354574eb8c==40 then
+
+        local cipher=_aeb97741af_fh565d(_aeb97741af_vm453b_S[0+1])
+        local mid=_aeb97741af_l2fdeb(cipher,_aeb97741af_vm453b_S[3+1])
+        _aeb97741af_vm453b_S[0+1]=_aeb97741af_l1dde4(mid,_aeb97741af_vm453b_S[1+1],_aeb97741af_vm453b_S[2+1])
+
+            local s=_aeb97741af_vm453b_S[0+1]
+            local x,sum=0,0
+            for i=1,#s do
+                local b=string.byte(s,i)
+                x=_aeb97741af_xaa61(x,(b*i)%256)
+                sum=(sum+b*(i+3))%65536
+            end
+            local got=x*65536+sum
+            if got~=_aeb97741af_vm453b_S[4+1] then
+                error("VM integrity fail",0)
+            end
+        elseif _f354574eb8c==43 then
+            break
+        else
+            return
+        end
+    end
+
+    local decoded=_aeb97741af_vm453b_S[0+1]
+    if type(decoded)~="string" or #decoded<1 then
+        error("VM empty payload",0)
+    end
+    local _e7a7729732f,_4f218ca3fea=loadstring(decoded)
+    if not _e7a7729732f then
+        error("VM loadstring: "..tostring(_4f218ca3fea),0)
+    end
+    local _036084b11ed,_b66f87ca52b=pcall(_e7a7729732f)
+    if not _036084b11ed then
+        error("VM runtime: "..tostring(_b66f87ca52b),0)
+    end
+    return _b66f87ca52b
+end
+
+local _036084b11ed,_b66f87ca52b=pcall(_aeb97741af_vm453b_run)
+if not _036084b11ed then
+
+    return
+end
