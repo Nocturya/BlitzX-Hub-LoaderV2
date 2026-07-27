@@ -1,147 +1,24 @@
 
-local _2c01f9feb7_x76e1=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
-local _2c01f9feb7_r645a=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
-local _2c01f9feb7_fh1d45=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
-local _2c01f9feb7_l13e41=function(data,k,rot)local t={} for i=1,#data do t[i]=string.byte(data,i) end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_2c01f9feb7_x76e1(t[i],k) out[i]=string.char(_2c01f9feb7_r645a(v,rot)) end return table.concat(out) end
-local _2c01f9feb7_df1a0=function(h,k,rot)return _2c01f9feb7_l13e41(_2c01f9feb7_fh1d45(h),k,rot) end
-local _2c01f9feb7_s2655=function(h,k,rot)return _2c01f9feb7_df1a0(h,k,rot) end
+local _3650438e0e_x559d=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
+local _3650438e0e_r7843=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
+local _3650438e0e_fhdfab=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
+local _3650438e0e_l1669b=function(data,k,rot)local t={} for i=1,#data do t[i]=string.byte(data,i) end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_3650438e0e_x559d(t[i],k) out[i]=string.char(_3650438e0e_r7843(v,rot)) end return table.concat(out) end
+local _3650438e0e_d2614=function(h,k,rot)return _3650438e0e_l1669b(_3650438e0e_fhdfab(h),k,rot) end
+local _3650438e0e_s658c=function(h,k,rot)return _3650438e0e_d2614(h,k,rot) end
 
-local _2c01f9feb7_m32fc75=function(a,b)
-    a=a%4294967296 b=b%4294967296
-    local a1=math.floor(a/65536) local a2=a%65536
-    local b1=math.floor(b/65536) local b2=b%65536
-    local c2=a2*b2
-    local c1=a1*b2+a2*b1
-    return (c2+(c1%65536)*65536)%4294967296
-end
-local _2c01f9feb7_ks1c67=function(key,len,seed)
-    seed=seed or 165
-    local state=(_2c01f9feb7_m32fc75(key,1103515245)+seed)%4294967296
-    local out={}
-    for i=1,len do
-        state=(_2c01f9feb7_m32fc75(state,1103515245)+12345)%4294967296
-        out[i]=math.floor(state/65536)%256
-    end
-    return out
-end
-local _2c01f9feb7_l2536c=function(data,key)
-    local ks=_2c01f9feb7_ks1c67(key,#data)
-    local out={}
-    for i=1,#data do
-        local n=string.byte(data,i)
-        n=_2c01f9feb7_x76e1(n,ks[i])
-        n=(n-((key+i-1)%256))%256
-        n=((n*16)%256)+math.floor(n/16)
-        out[i]=string.char(n)
-    end
-    return table.concat(out)
-end
-local _2c01f9feb7_d23419=function(data,key)return _2c01f9feb7_l2536c(data,key) end
-local _2c01f9feb7_s21293=function(h,k1,rot,k2)
-    local mid=_2c01f9feb7_l2536c(_2c01f9feb7_fh1d45(h),k2)
-    return _2c01f9feb7_l13e41(mid,k1,rot)
-end
-
-local _2c01f9feb7_cdabb=function()
-    local s=_2c01f9feb7_s21293('69dc1c013bee1044ed12d3f53ecc6fa07e94f5e2597b113a3427b5318a125977c41f7a2837d1c1332e0493b7548ea0898bf7529912bbf1795b0fff8e1f131f2ded9920eaedda192e28a726b71bbfd8e515dfb925b9e7e5b08c855229bedede4c',75,1,226)
+local _3650438e0e_cea5d=function()
+    local s=_3650438e0e_s658c('a5a9f0ece8ecb9f4e8d4e0e0a5d4d4f8fcd4e4f0d0b9e8fcf8b9e8f4b5f8fca1e4d0fca9a9f0d0f4ecb5d0e4d4a9b9a9e4f0e4e8b9b9bdf8bda1f8a1e0a5b9a1d4bdb9d0a9f0d0b9b5d0f0fcd4f8ece0b5e4d0a9fca1e0e0a5e4fcf0d0ecf0d4',48,2)
     local x,sum=0,0
     for i=1,#s do
         local bb=string.byte(s,i)
-        x=_2c01f9feb7_x76e1(x,(bb*i)%256)
+        x=_3650438e0e_x559d(x,(bb*i)%256)
         sum=(sum+bb*(i+3))%65536
     end
     local got=x*65536+sum
-    local ok=(got==5323934)
-    local aa=180 local bb=540
+    local ok=(got==13512627)
+    local aa=248 local bb=992
     ok=ok and ((aa*bb-aa*bb)==0)
-    return ok,got,5323934,#s
+    return ok,got,13512627,#s
 end
-local _2c01f9feb7_j9db9=function()local a=486 local b=a*(5) return (a*b-a*b)==0 end
-
-local __dbg=function(m)pcall(function()print("[OBF-v2]",m)end)end
-__dbg("boot")
-local __sec_ok,__got,__want,__slen = _2c01f9feb7_cdabb()
-if not __sec_ok then
-    __dbg("sig fail")
-    __dbg("  got   = "..tostring(__got))
-    __dbg("  want  = "..tostring(__want))
-    __dbg("  len   = "..tostring(__slen))
-    return
-end
-__dbg("sig ok + security verified")
-
-local _2c01f9feb7_vmec18_bc={687865856,16777216,0,16843008,16908800,16974592,17040384,704643072,671088898,687931392,721420288}
-local _2c01f9feb7_vmec18_C={'dd567c9502c4ad3367b0e4358b96a40e59c2aafc8e829777568fc7e557b50444a98e24ebbb41ca5b0abe641f923dd0e3e9e00d17890f9f92f99390dc31d61fd9ce0689124c78bb5fbed5f99680644f91e17f64964bcc52309773cd31f595832b3636d308c0873175f75867d52d39b1094001e1f40981675bc45a1437bfbdfe65a29dd0d5343ee44ff5fbdf4b2c315956e65e985f941286d6848d1ed2630ba517370a4bf2a88963d34c80e9e88fc9b0612b2890fc5d87028c155fd1e5788370b352dc6e882a17423ae5c0020fda0587ddf7feab696a1f8bb2d1c5802c594eb45f344971ef4428d30420892295b2914607b9e439607dab59af0f9fb2a786a24654a604376c618ad3c89918cab19daec6c6596cdad286da749e4d476a9d6f371daf1eba763114b7cea5406a1a27a055180de7be87817db01a4086a576cb0d0770a26d43eb4c9b2527395e656fe904e20483149b6183b01dd0cd5af873357b0863f2113f17c4ba30e88597621cc59efd8aa61a46254ea63a9630dd9b16db1fce618fac4ff582d67bc54d99f76391f4427abd0d15ea8ce7855b4e62b6e608c1af3a7482e1b34211451d54f19f47a74b4c079453dc4bd0d1e3e9247f3d32bff28d35661c76edd707a7e6415bc339bb02788aff780dac196d2c0070d588e0a63eeff20cb960aa5737a1530765e81e56452097fc188221c85048ca526603d9694ae20bf10e369320c21cdb0d7ea31a8ef973eba9acd5a73620e6df98d412251c34f4bce7aa94187faad746d7e488a8def512f953d20d742967e2a46e303118ba42e8a7bb7903270475ea0d38b3886e9f7d05cb161306407b4475ee24a4bd7d97a7dbffeda82c42b63762412568890271cb34d9bb66aa409dbc2ec8db67031f7b3d1ae2c95f62e0cf9013d95a8dd1e5e04a91c5f683aa5941b4c92228ad76f72eb012e090e0590feea25754b9a14728a88fe34dd52b2ccdc7d0cff245dcc1ba7b74f82de59a1be6d7434554ad356daddf3290693e546ebc425366e40a7edb73d6335554f7661d6ae823dc4caf2c8e6ded67f292196b7b5d5d7d94252cb9a0c01a38d199e17bb69d788eb6279d2c7758b907406d50d9ac8b80ee4446ccfccab02268afc805e640b3742d3fa477098e82960c12a5896b47a5d7a07d53636ed2c94119edd6850920196c0773bb91b785e0bc5ff58ad3fe4716a7820da4d4d7239c6091bfec5d4823244279db3b7428271c7e2485f5d4365d6d327b51e22f0b40e46bb0c9b97705ea7cc8012a206471917a695dd4e070c8b8305e9d7b069ce4a5d852e66eef992f1e0ea3300da341a0f29b9557b93120246dd5eb93d738bccbddf518fd67c4e0df74eb6043d1906e279e6e0addd8d3ccd79d486915582cd05d9f6863039431e1fbcb9204848934dce9d33eb92f09647b2a7917884ceb6660f98a270103449cb087c809ef3fc93459c100f33d49b91e58585cd1a421a199b6cc27786fdcd0f9f3c21ef2768fdd683c0dce76cb4ab330f2760080b4606edd497ea935b97c6d054649a51b95c9c57cde1f144e3f8acad5baa76c772a856b9c88a6d729b3be50079c90305d1897bd4623e40e6287d5d09d29483420b40fc5573dee795e3fa3df3b382ffaf56e49b221131883cc62260e4b50cf3530c33e285bb772162a5d8f2f94639a203eafd31ddae0c41f82c67cccef35bcd566cbfa6e2b7ef16a09f91b6d138036d6807b2b861c4f8ba105a7343e061fe6d5dffe70f260076b564f321a1259fa3a33c90e9413640a00bff7d6d10719f608f530b624de75b1dd14fb924baddeb3c343d31e8882ef6977807607e0796ce02555b687b3cc35c7b64b5e03982e54965e179f3e687d427700dd770c00ccbb3818be2564a2d5017bc024d0b2535c64a29361b2e3da41ce5aaf38c41c52dd2eb8600ce9bd0537367d54f0333ef4e49725d98770a5299f638a1b0c6ce655d45d0ef312542eb0378d0f5fb4e8636eb478ca7b56ca1c489a1470f41a0b3efdf4eb6b24639223aae84ee1016d11228c9ed1a6489969230acb4d34a5ac8ef4f197f0e5f8a97998bf8fd22a2176737a98a319e743e2f3c6eadb3dc5bdf6568b378f310916e24f4449b7da587050444490ca3c55e26a61ef989ed7618ac2f4410d043370cb9e78520a8c86fad93a86841ec854ae777cc71ac37cd38d408a3a4b4c73b286d44658c9e18c8076c2bf28cb8c5948e4125b88311500f28848ee1a014274013ff9fc9177717be76853cb71026ceafcbcbf13578ef4fb872c7dbcdedf538e3d45ee344704128b206e7da70a1808c29a748209b62e7f3c8d0ab40b13d12b04f6e20e4a1202f3b438cb4959fbfee48488d6f127d3b76a7a1d4e1f14c59182000be8bc85c2a0f7a380fd58e3c580ba96026995960bfb964874e386a4528e851746948c25a155a36b86db1fa7071ff5532f539ffddcb5fe49715068d5cec23b7ea7642d8c1be25755f6e25045ccc05fa9f2f7185a47811076e3387fcf8cd93387a9dcedc2189777b98962bd30b956e64f782aa6033c3a442e697cb52fea004e96909643a77700de87a4841d3b3784135f955f4b503e7b221b9fb21649dd31d49f115488a533dc93b047fec1f80cf9d322bcc0c47252f795074eb1ee85183c094823a033b681d12656c6232b06a09e33fe667854be2c5f8a3fd6d43fad8e69cc716e31ca340fd828b4e51848784253cfef1c4c7c4e350278d2346c9fb93c31036f2ddfda7b8465e74cc84a5511b743c0ae64580096882a8b2b77623bbca5b00a080d05ff081ff951de343300819cd55cb0bf323a52109319aab16fb6733598eee6e19ab7e6bf4d17ca725d0f835b4585ade841442e57c0f072d8b2cd48ef3f3ce05b8f8e5c4d5ba1316c9a4974ad74d3be023f267ca103c6f88100ac7d171f2345f29b11f6cdc3608a93197812554d3a391732e4659800db237fd2c560c3a5b2cf286f2d735635fb07fe6f274ceaf1634f0d3f2f2b4c75e603ea9212ddbd6b82463bd1bcf2efc4aa4fb0ea0a28ce5f99fca6bd2471ecdd5f4fec8918142cea2e92da69678d7d3ef372a03756c9c80662fdacd32210c68c9ee5bc4b8e6a570dc853cac46a965c2e9c9525d6a64778b7a22ffca06e44b7aab7fe353a472ab8a33a6bbf39ede5445f1e7bec2f2f24bb68461a75e5cf7ecc789df6142bd60436a41db778c84cc3177b8ee9bdc6b4c7a46cd5c786089ae62337300f0fad487404011132de2e289c66cb6c5f004dcedec0bb9b3b9c1729bee6f8ce3f894995b0cc9e06dd49934b0a4b2f7276dbca4befa6a5da970fb4678254a2182258d0a09a7564440ac8cce4257f0b568ead81d3e391e397061955447c4dcd9410531e41e4c3dc1be924620aeb1e898464576203f1fc986661cd35211382e551952e887cfbfd5f7a0f6d471fde71ec34dbc65be39f58fbeb5ddf44dd815fa3a694a9f8022fc99fe05d45d8a6b08f0aad722c8540b8b24c1883202a7b7ac943a1a5733a99a34cbdbdd6f854d2c94f5b542a7e6002dcff97dc14dedd8205b329bb8c3b1d2b7b65f4d9a764a0c7304f89d0d6d42b77642dd604366b4666a3b818d0249fc41234a6849185f0ad536add06b9b27bd53774c4a5ac525d122093242866f5d1e4c21271401c88fc95f5bc98a47504b96bfdbe77380a086151538e7230ae0a31937b4d379dc5c99d0ff67acf505ac44ba2b164ec0fe18986298221f715be68e5cc48b962aca988dfbacbdb6f7400f012c7016a2e4f8b622ed925fcd82c8b3b9fc3e7290affb05bc90f9e1703c66cd0c0c42d637d07b7d3ff57e7a46754a3849b5b81d1f602d0ee763342abd6b57db44cc520fbfe13294e1ecff9aec5ce784fb77286bb1451d69835f099887bbef92359c0ca66718f99772c1eb495efb37bd9af1ca19125c5419a92be629ab4ba163683796c8532af2ca13ed567ce5ba138c526bff4a992a3d4d0fa951503fd64331867e45c6adb8a9eadcf26eb38000c523b724494db45904b6ac91434b9ba8d7424d1e5758def9ea1cfb1462b66155ee2dc4990ed716358db80a5393728cd75b1ef1f34e0584581220dd737320438a1d7360a2c3460fc77c3c2d5db74d101d0c33c63aaf6d18b3cd0cbd6470450320f46904937c0fb18dc8fe6917082302984f3287d1b654a1ff732588f3da645c563ea456a95e144eb69ad9613797d0512c816ca759fe9b43054e0a2aebfa0d14e0f8b46e92438d2f637c14cd6895db5d9b50152612dc9a679051ee23dfb875a27584b8f417edcdec2dc6086a8f0d5f63860fbec509b370d599f92c9ad17f742943bd780ed48916b36ef05abebbf2c5438506999d0fa449166bce1615254271fa89552787014e5bc1c279d761b0ca75d7d2289e082953da0c6bed9a57b08af31afd8912594b3d1af166bbd6c032b64f6d4ab97e03596332b00ddbd2d4f34c19a66a74f522fdc289046c53c75b9136a4dc58510d582f6ab8845adb029369bfca74f4a3096fbb6a329d675e3a386048ef8fad8dfe78f63a45e916734b6a8e31e954407df64a726c479e0a4121cf75a858fc478343f03d11357b360bd8b519cb624d34ff1bc22604b68d5354e5f58c8a96ca5a46c4ebf19a76731ad10fc6576228837fd812bf6f91790f290d09486c3899def7fd98ba069c69b3ed13b3b4ce9311ef76f40901d11b7ef7e453e1ded72c839fb71a46e88eb2ffaf50a99cd28b992ac85f1c8482b917012ccc15b9a33edc26da339aa47602068a5cbba11232e511cd02a9e4430a8eae88018de0eca48790e895d7447faa78d75cc8a4ab2846d71e6169c062208a25a3771bb937db306d090fc0f55b750e306066bc9c2c918b7ff4b3d4939e6b4d9a66f54db64c27f657f30e65bcf56eac45565bacda3ff1606af8c1950586a04db8177cfb2b155a64cdef04f303ff7a89339b8b0745e2f8a9ccd8443277229fee829b9cd4d5ba55548b975944204cfc1ffac3c782ef7b1b20c2140d189f731485e004ef665a583d4dd73cca7d86a07f95b2bc67b31b4ec2656eb333501147429ba52061efa6e375b27ec12a264cca663c7320c7eea71f86d8e3479a3291fb8c3db3570669e89b26d6ee7cfc490b8d4d6908e87657bf3ea9cf9136ce33671f8972ead53c74c8bacf7318be35a4c0c4965b8a8b148e85ad207f9ebe6a78612c7850216667549ec6874e9b450470e292c7d5ff6cc93072d727a0472310b90659b9c3f0c1cbed5c7827646eaffb33ea51d598932b79b7023dec836add9c5e626fab5ea2618cfae77f6e237b1dfd09a762442aa36fe6cdd3109fe244be1f0fa32a42ee41c6279b34c52e599dda22cb5f78594f9648be59d568fe0c54d8ec646c859d083365495866da1e50ca06c88f0e1dcfbfda441915a9cbde13be147919a41942bb170ef8a5b0b10a4d58c62d010342c53740df8c9fb9aa4a62025e9ccf33657b8c02d21f4e2037a38cc526d362dd7f2d29c3afa71eef20eb743e71b6e2c67b947812ea9220a22f5115637cd70a4f30efba6fe48fa10cc5a17656de790ccd987ef24583ef4870f922a7fe0d52ab7058c6f913e8e5181137be63b3a02a9c02b6dc2e53d38fc8d7eff5236ac4ae7c42f796b73af81f912d7e4069a5f2ebf81290b74c89aa02998ab49e427cb63af86dd0a427cb7c32fd60af35e3316a49119376b5169cc4f1a50a3ad9fda61b16dd066ccb5d60aed54e55d2d280209ec894660b6f3e01ebe233558661c9627ef1d24d3a1d1f6e2eee41dbd22847e024d2865ba94aa66dbed4274255df66bcec090aa65db5c10c1c3936b3de817844d7cb6b30b740794b120cda7b6c0c7765a1ffffafec650112d511de1d5fedc3dac7c9a360c39128595dddc0fbe98c4eb68cf523d98c69591e17a8086c1e6e79769b3348e04cae28d7c59b9b8e4f568d080085e8e04712a03024052c3035bf4e30613b245479ff93759c83af3d20b36c6911ab0dc38e94f556cfbc91d629b6c5da104bbe377aec17e383604ec9894e2027c479d4430761946ede7658c434cdac1326a5bbdb39143d78a64b7ccf116a0db2d66',132,6,193,16031648}
-local _2c01f9feb7_vmec18_S={}
-local _2c01f9feb7_vmec18_pc=1
-local _2c01f9feb7_vmec18_int=0
-
-local function _2c01f9feb7_vmec18_run()
-    while _2c01f9feb7_vmec18_pc <= #_2c01f9feb7_vmec18_bc do
-        local _20732081e06=_2c01f9feb7_vmec18_bc[_2c01f9feb7_vmec18_pc]
-        local _ba7a4c48527=math.floor(_20732081e06/16777216)%256
-        local _67a9e9505af=math.floor(_20732081e06/65536)%256
-        local _747fff67196=math.floor(_20732081e06/256)%256
-        local _a86a097a7ad=_20732081e06%256
-        _2c01f9feb7_vmec18_pc=_2c01f9feb7_vmec18_pc+1
-
-        if _ba7a4c48527==0 or _ba7a4c48527==42 then
-        elseif _ba7a4c48527==1 then
-            local idx=_747fff67196+_a86a097a7ad*256
-            _2c01f9feb7_vmec18_S[_67a9e9505af+1]=_2c01f9feb7_vmec18_C[idx+1]
-        elseif _ba7a4c48527==2 then
-            _2c01f9feb7_vmec18_S[_67a9e9505af+1]=_2c01f9feb7_vmec18_S[_747fff67196+1]
-        elseif _ba7a4c48527==3 then
-            _2c01f9feb7_vmec18_S[_67a9e9505af+1]=(_747fff67196~=0)
-            if _a86a097a7ad~=0 then _2c01f9feb7_vmec18_pc=_2c01f9feb7_vmec18_pc+1 end
-        elseif _ba7a4c48527==41 then
-            _2c01f9feb7_vmec18_int=_2c01f9feb7_vmec18_int+1+_67a9e9505af
-            if _2c01f9feb7_vmec18_int < 0 then return end
-        elseif _ba7a4c48527==40 then
-
-        local cipher=_2c01f9feb7_fh1d45(_2c01f9feb7_vmec18_S[0+1])
-        local mid=_2c01f9feb7_l2536c(cipher,_2c01f9feb7_vmec18_S[3+1])
-        _2c01f9feb7_vmec18_S[0+1]=_2c01f9feb7_l13e41(mid,_2c01f9feb7_vmec18_S[1+1],_2c01f9feb7_vmec18_S[2+1])
-
-            local s=_2c01f9feb7_vmec18_S[0+1]
-            local x,sum=0,0
-            for i=1,#s do
-                local b=string.byte(s,i)
-                x=_2c01f9feb7_x76e1(x,(b*i)%256)
-                sum=(sum+b*(i+3))%65536
-            end
-            local got=x*65536+sum
-            if got~=_2c01f9feb7_vmec18_S[4+1] then
-                error("VM integrity fail",0)
-            end
-        elseif _ba7a4c48527==43 then
-            break
-        else
-            return
-        end
-    end
-
-    local decoded=_2c01f9feb7_vmec18_S[0+1]
-    if type(decoded)~="string" or #decoded<1 then
-        error("VM empty payload",0)
-    end
-    local _ddb79d9a6e1,_0a8313af788=loadstring(decoded)
-    if not _ddb79d9a6e1 then
-        error("VM loadstring: "..tostring(_0a8313af788),0)
-    end
-    local _7599a7b0d38,_e218f7c3c36=pcall(_ddb79d9a6e1)
-    if not _7599a7b0d38 then
-        error("VM runtime: "..tostring(_e218f7c3c36),0)
-    end
-    return _e218f7c3c36
-end
-
-local _7599a7b0d38,_e218f7c3c36=pcall(_2c01f9feb7_vmec18_run)
-if not _7599a7b0d38 then
-
-    pcall(function()
-        print("[OBF-v2] VM ERROR →", tostring(_e218f7c3c36))
-    end)
-
-    return
-end
+local _3650438e0e_jfe5c=function()local a=251 local b=a*(3) return (a*b-a*b)==0 end
+local _dc54be1cd57={};local _25b13226371=setmetatable({},{__index=function(_,k)return _dc54be1cd57[k]end,__newindex=function()end,__metatable="Locked"});_dc54be1cd57[_3650438e0e_s658c('35708858afd2d67645807ebd',36,4)]=hookfunction;_dc54be1cd57[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)]=print;_dc54be1cd57[_3650438e0e_s658c('f434337d082b78b83c003a5d',83,4)]=warn;if _25b13226371[_3650438e0e_s658c('35708858afd2d67645807ebd',36,4)] then _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)](_3650438e0e_s658c('140c0000087c541050',65,2))if _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)] then _25b13226371[_3650438e0e_s658c('f434337d082b78b83c003a5d',83,4)](_3650438e0e_s658c('7c3c4c4c574c0cd4',86,3))local _4d3e913dd59=_3650438e0e_s658c('6665e7a53667e56536a56622a7a7a436a2e5662766a53666666d25a223e5',62,6) if _4d3e913dd59 then _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)](_4d3e913dd59)end end else _25b13226371[_3650438e0e_s658c('b3e90fd275fe132228d64dce',37,4)](_3650438e0e_s658c('686cd56c444c14',85,2))end
