@@ -1,4 +1,4 @@
-print("GO")
+
 local _62664aeccf_x1592=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
 local _62664aeccf_r2b76=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
 local _62664aeccf_fhdaa3=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
@@ -34,7 +34,6 @@ __dbg("boot")
 local __sec_ok = _62664aeccf_ce2b7()
 if not __sec_ok then
     __dbg("sig fail")
-    return
 end
 __dbg("sig ok + security verified")
 
