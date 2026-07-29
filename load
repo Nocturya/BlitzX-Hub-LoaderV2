@@ -15,9 +15,9 @@ from pathlib import Path
 from datetime import datetime
 
 # ================== CONFIG ==================
-CURRENT_VERSION = "1.1.1"
+CURRENT_VERSION = "1.1.3"
 VERSION_URL = "https://raw.githubusercontent.com/BlitzX-Hub/BlitzX-Hub-LoaderV2/refs/heads/main/version"
-SOURCE_URL = "https://pastebin.com/raw/keGRDRNw"
+SOURCE_URL = "https://raw.githubusercontent.com/BlitzX-Hub/BlitzX-Hub-LoaderV2/refs/heads/main/load"
 DISCORD_URL = "https://discord.gg/YOUR_INVITE"
 # ============================================
 
