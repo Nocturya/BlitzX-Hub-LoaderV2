@@ -92,11 +92,20 @@ class HardwareSpoofer:
             'details': details
         })
         if status == 'success':
-            print_ok(f"[{category}] {item}")
+            msg = f"[{category}] {item}"
+            if details:
+                msg += f" | {details}"
+            print_ok(msg)
         elif status == 'fail':
-            print_fail(f"[{category}] {item} - {details}")
+            msg = f"[{category}] {item}"
+            if details:
+                msg += f" | {details}"
+            print_fail(msg)
         elif status == 'skip':
-            print_skip(f"[{category}] {item}")
+            msg = f"[{category}] {item}"
+            if details:
+                msg += f" | {details}"
+            print_skip(msg)
         else:
             print_info(f"[{category}] {item}")
 
