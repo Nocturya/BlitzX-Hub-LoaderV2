@@ -1,157 +1,924 @@
-print('o')
-local _107139d1da_xfcd2=function(a,b)local r,p=0,1 while a>0 or b>0 do local aa,bb=a%2,b%2 if aa~=bb then r=r+p end a=(a-aa)/2 b=(b-bb)/2 p=p*2 end return r end
-local _107139d1da_r64b9=function(b,n)n=n%8 if n==0 then return b%256 end local hi=math.floor(b/(2^n)) local lo=b%(2^n) return (lo*(2^(8-n))+hi)%256 end
-local _107139d1da_fhb3a3=function(h)local t={} for i=1,#h,2 do local v=tonumber(h:sub(i,i+1),16) if v then t[#t+1]=string.char(v) end end return table.concat(t) end
-local _107139d1da_l15714=function(data,k,rot)local t={} for i=1,#data do t[i]=string.byte(data,i) end for i=1,#t-1,2 do t[i],t[i+1]=t[i+1],t[i] end local out={} for i=1,#t do local v=_107139d1da_xfcd2(t[i],k) out[i]=string.char(_107139d1da_r64b9(v,rot)) end return table.concat(out) end
-local _107139d1da_d862f=function(h,k,rot)return _107139d1da_l15714(_107139d1da_fhb3a3(h),k,rot) end
-local _107139d1da_sa1d5=function(h,k,rot)return _107139d1da_d862f(h,k,rot) end
+import os
+import sys
+import shutil
+import subprocess
+import ctypes
+import winreg
+import random
+import string
+import urllib.request
+import webbrowser
+import time
+import struct
+import re
+from pathlib import Path
+from datetime import datetime
 
-local _107139d1da_m322421=function(a,b)
-    a=a%4294967296 b=b%4294967296
-    local a1=math.floor(a/65536) local a2=a%65536
-    local b1=math.floor(b/65536) local b2=b%65536
-    local c2=a2*b2
-    local c1=a1*b2+a2*b1
-    return (c2+(c1%65536)*65536)%4294967296
-end
-local _107139d1da_ksf676=function(key,len,seed)
-    seed=seed or 165
-    local state=(_107139d1da_m322421(key,1103515245)+seed)%4294967296
-    local out={}
-    for i=1,len do
-        state=(_107139d1da_m322421(state,1103515245)+12345)%4294967296
-        out[i]=math.floor(state/65536)%256
-    end
-    return out
-end
-local _107139d1da_l21b33=function(data,key)
-    local ks=_107139d1da_ksf676(key,#data)
-    local out={}
-    for i=1,#data do
-        local n=string.byte(data,i)
-        n=_107139d1da_xfcd2(n,ks[i])
-        n=(n-((key+(i-1))%256))%256
-        n=((n*16)%256)+math.floor(n/16)
-        out[i]=string.char(n)
-    end
-    return table.concat(out)
-end
-local _107139d1da_d26aab=function(data,key)return _107139d1da_l21b33(data,key) end
-local _107139d1da_s2750b=function(h,k1,rot,k2)
-    local mid=_107139d1da_l21b33(_107139d1da_fhb3a3(h),k2)
-    return _107139d1da_l15714(mid,k1,rot)
-end
+# ================== CONFIG ==================
+CURRENT_VERSION = "1.1.1"
+VERSION_URL = "https://raw.githubusercontent.com/BlitzX-Hub/BlitzX-Hub-LoaderV2/refs/heads/main/version"
+SOURCE_URL = "https://pastebin.com/raw/keGRDRNw"
+DISCORD_URL = "https://discord.gg/YOUR_INVITE"
+# ============================================
 
-local _107139d1da_cea05=function()
-    local s=_107139d1da_s2750b('380dbb93225f6484dcc9f61468aced6185b37dd161f7670c631fd2b66a8d37ad105c8d0fd2bfe548b1267238858918c36f2ba0fbb9c21b931587c4deee778bfe39c17c2b216d1ec08580e859b508376398db9a9fbe539e219997d445144c18e2',155,6,77)
-    local x,sum=0,0
-    for i=1,#s do
-        local bb=string.byte(s,i)
-        x=_107139d1da_xfcd2(x,(bb*i)%256)
-        sum=(sum+bb*(i+3))%65536
-    end
-    local got=x*65536+sum
-    local ok=(got==10964875)
-    local aa=484 local bb=1452
-    ok=ok and ((aa*bb-aa*bb)==0)
-    return ok,got,10964875,#s
-end
-local _107139d1da_j879a=function()local a=459 local b=a*(3) return (a*b-a*b)==0 end
+class Color:
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    CYAN = "\033[96m"
+    MAGENTA = "\033[95m"
+    BLUE = "\033[94m"
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
 
-local _107139d1da_bf7b3=function()
-    local ok=true
-    if type(getfenv)=="function" then
-        local e=getfenv(0)
-        if e and (e.script==nil or e.game==nil) then ok=false end
-    end
-    return ok
-end
+def print_ok(msg): print(f" {Color.GREEN}[OK]{Color.RESET} {msg}")
+def print_fail(msg): print(f" {Color.RED}[FAIL]{Color.RESET} {msg}")
+def print_skip(msg): print(f" {Color.YELLOW}[SKIP]{Color.RESET} {msg}")
+def print_info(msg): print(f" {Color.CYAN}[INFO]{Color.RESET} {msg}")
+def print_warn(msg): print(f" {Color.YELLOW}[WARN]{Color.RESET} {msg}")
 
-local __dbg=function(m)pcall(function()print("[OBF-v3.2]",m)end)end
-__dbg("boot")
-local __sec_ok,__got,__want,__slen = _107139d1da_cea05()
-if not __sec_ok then
-    __dbg("sig fail got="..tostring(__got).." want="..tostring(__want))
-    return
-end
-if not _107139d1da_bf7b3() then
-    __dbg("env bind fail")
-    return
-end
-__dbg("sig + env ok")
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
-local _107139d1da_vmcad0_bc={687865856,16777216,16843008,704643072,16908800,16974592,17040384,671088898,687931392,721420288}
-local _107139d1da_vmcad0_C={'1dff292d3e42b4475992548cc7a7f6094ad3f600caa3d26f3e5e78418a42f75020ae8360e4c38c32ce336d35f446b0cfcf3046e207292ce9874ec54ac896c775667152dbfcca5689f4cf95d1fb37bcbafa1441e9ac6df296a279a6a9f28687256a9030a7b1e1a3a012ab354397ad912a716659097bdd80298927bcd6d87d5c9db0d2cabdf3a6dc21e09a3d9ab44a1e5035766f47882bd390d95a64744dc40ae6a7520a08702f2e2ad5a20690b85304d9fe49cc309f6ae0591c9d072e2361e4d55b1b94be010f18c679bcf5dff033f8614730e832c88bfb67abee9391ceeaeead5a22d12dadad6cc27760f071fbef3ad213acd7c444904b02a05974ac13a80fd3c095d5355ce0196773439ae6d37c7c56f3716f2d4888f397db4f55fc513864c570aaccdebf7d0a50f91b5fd9a9ceb98e6760c1dff75437749a0be233ea1b6c55bc58acf3469b76a35951eb38539a9d00ad1cde9790c43f31c99583ef136c0323568675945d7f747f6af7f6df52e709468a8551c507082104e5231f50e9d60e84c27ee7dd5f572bef59b151dfae33a2173b127871043b1ff637d2de68c08803759f4d87b47423cb5f864226733c64344d593b8c41474dbd6a6195a693dc0bf9037165e2d97cdb92cedfd45eb2a15b634483edd50e0b0f7c67e5bc811a5e9b4fac0c93aa41b58d090587d390561027c9bcc5d4d97b7df140b5b5e199587b6c80e1ac67c9ffe2e3589d804bf7c8f3037a4a12320ee8a2d70455f41d290fee8c23ca4190aa830e9c2966937412f5027dd7c9fdf9f464c90ec618ddac92895e4fa499b7bec62d220f56dea9e0475b2ddc246db947e89e103f46be722953f7075b19d9723998efa76573cf49d60b48e4249fc24181a26d00cb0b6d01309eae27eee61ec1175ee22c5864a481cb8eb7f3d73ae98846805010d62d1290799b1cd98ef2609e54805bc7ad08defcebc614d6fd023f6cf142b93e6746b21874e3ed8af550115c826a165c2c5e39a12a2d7ffe5587175afcc72999c538c25c43c154fb3640ca627f5e616b88cb197a63bed28422a4ea9fd3103bf42a5f27884f7aed28abdc944aed7a2d842a82a425c2b7bccf782ddeedcfec659c29c755bd745299343300ed223c62891fd21bdda85ff001925472b4317827ea1e232db6969f0ddaab0eb0ac2febd2f86090dcd65ef60aa5ac35bd0ef6c4631d960ed0dc12bcb79fc5c8da28b14aa33577a80f7585412f200debf8fb5c930a9c702c75c4b3ee05647d8cfbdbb5db8fb7337d1bfff93cefe72244ab9c605a85e2f0942cfcd6f8a2fbcb931a389673f572392810fb8b1fd16e9bbf213a047ec10aa56244dd58b7ea31719a3af6aa1e1f5dd157cfe6ff33da45ca063ebeb3be821844dcb89a59983c5be44569c62b860d184d25b0bb2314d6c820931399ca1ba11c8dcbfc8c1283bc3c0ce386769fa7f89832ac7ca1478ace6bc4237fda8f91bb5c2ef73c6bb9f9a10110995c969bf9299386f63a9fe604203877bc8c1b35e855fadfb6d333e1fd226e6be3ac0910e23015b7ddf74839424f9a7c8992a587776c190a1ca8863981182eef45761fcd157a1233a6f44866e195b26c8ea60fe31b2d9e6f6ff3cf34aa24f7ef148d953bb44d2ec018b1f4cc9ffb246c8d409b0ac19280bedd7e891277969aeba2f8cdcfe46053053a198ac9b139b947f0629682acf3b7b7491fa749f7f81b5799a7419a71e7b31e61c0db72a881e103bb0652d2bea256e21cc5e32c5b857c23483f4b95fe072233402d8336ce46311723cd3f367d808b9dfb6fefa98f67b9f818bd476240975e870661c4dc2f30d9ff3de2df5f1389ec9c50c1be77068bbefbfa5a0f3b8f2bce195d163d718c4edc7c179a84a8188d29173ecf32ff9e31257d369490579ca464768cde39b501a6fff25b04b14b0f3dca869ae6f9893f995f5f228b95c14ee4f07c2c927f8548b006a0f8d1b34781d6ca5c33e98eebb499c1ea2f2207b8e5af796f5299baebd1ab040e017c1c79ad42c23dac8532335170d625fb5639349553984212d2ae2a21cdc7f56d1a2943b640c683b7025ad30e41e6f4a7698f7f47c57c73f23d90ed4cba15145c01bd5b175cfeda932a66a168ad3f2730fb691407a3c60dcd982cd45a609bccd28adbe061d50cdfcddce61c748cb5508808d66175ff3bbdf79a7dce4fb4e6875d722281e9c024bcf74224a7f2b72127b3d928ed2b8305e4afa452afda03550437a830a4e0303ef99ad1635b1cbeea215feb6916f976644adc56519650c3c43a9a49fbc06021455b9e74c222a31d0e0114db5b091e257d20c6d6cf2ef05bf1594e4f26e8ae86b3431978da8c654e1a23561cb35b807414fab7f64f37d26e00d740d95be98d1d149d85133e584c81c5d8ccd37a16e6765462ff230d58acdcf043cb49a137c571a4bf282aec6e42ee9afecc3034e1d2fe3738315b27b32ae65ca9370d44191e39b20fd691e687169f697a800d7d851fb48f0afcaa57d9cc2c26a2c8ffc53dd9478bca0cd87de90db96650e70449207af3392cd44fb194fae1a6c9c39caad83fddf9d231219dc974a74c3a152506f2941fc2954a775c24596aaceaaf29230247cf40579c3de124228246c4e7d7a919b564195bf8ede60b8e16871463a714ab96fa7128a1be0dd57f86771786a85682a5fc3a0285b91e4e4f51559b01d99e83af3ecf9436c61fb3523be9d59097e823155253a17e85681d0deda8fd31295557cda396f69889dde6ce5cc8a1b57d0acdea7080a86578e4e5fd28c207bc9edb35621911da0b7876b63f8cd4a63afda7c4b92acc597568da0afa5cfba1d7196d4b0d3a60b5c1ce92bb8eb12dc91b93719c9f6fd64824b79ea8aae2515119a30220eb65391ca0b4e6ec74da3bab4375c0a14c3b60fee712aaf742e6217d6d91e587ce1fc5a76badde5231efbe9dfff945a459c21f5a6469ae3b1e8cc419a4cf962efa85adb09c1f6555038598afbd1ac6da8b17801b51901f90fa3491f66dc98d380ad55b44d51dc23a8a44eae19e9d3d555675142546bded5e1b75360aa749ecd86916dbe9fe270b894944e9036861ec496404a2a21c9ae2edcffef29dfcedca573007dc3a257c192ebe0f467ebcfeb76b84230b27c554c49eeb78a826a13113c7c4c0fc065eeb84f8134281acbc0bb918779b8b2172e2f17341107649f4c7f2d5555ca94a2008e276d56cf6c9fb8ab56a546092414dbebcce1c12f479e0c490fa5fcf2cf6a727cdc9ee6c1343e4c2634182ab5fe3c78cb6d9aa0b9f36561ea4c60043c8b2dc47da0fdc13ef76ed0db83f9725cc38f82fc41d1119440940959d41af613e5ee8786df6d0224c61c1a57a45afbd85a2263b82f8b173a52689c423e42ce757f273d064922aa37102c9c9ee65e47606add4ddf43aa6547ec4bd5fd890b191b0f68406210d6596be65e6cade3e8112ad3a7459086e6463a34cc52ecbd232d0f3d3585f4e1260ba3ff734d836a4965dfe6f467a4970825b5693175e52883ff770c78c321559b43f8a3b7ad692423edba98854dc2fb9706c6663c1e0bb67d1a23acfc7acea30a74f0c05aa39db37883c8904c5abe834e41dc2892d72ef2730dfb73746d4897dc607df23012fb2579c0833cd49a1fb57571655cd252f497ec26ddc94cfd3c1c2be8ec9d6b8c87efa2bb90ef5e653fc626c33d4af33dc961f4ea72946146d5b95064952c67989b7938b2668d5d72c91a8a1411318a13f9b203f8035ad5ae2d6ddfef42400da7683b2fec3c5a28f9a0b514f9ebc6e5e9b01219349fcea1364d9028b42109b27178bfd12d89c09d1aecaa76707c73a7c83e9b953747833b491d290ae3f5739974935e1ebc3e6cefae230f4cb1c0dec0762ecd6d97edff7abd96ae6443292d5fd2bc98065b5d7026ba7a7cc06a846c7c64487ff36b793e2af48574a0c4a52c8a298d3eaacad9da269d6b275f2936fdaa8dd74e5e049901affdc2fabfefd0afb9763a10db67c08863b1b563f5e62b4714291854848bfdd60d18739eec23d57c226ccdc021f3c6be65f217600a7f6155f4b5177a80f33a5187c258e9b292a403c71d66f6f75af646a1fa6794f5b93b85446a5908bd314addee894cdda5bb8b079dd0c14f93d7df87560be96db399e458c79a5fc66bb418175023509ba38480e4160aa6dca064a7582160e5004949bfe0f17a77361baac1fcfe484180b539ac4e33b789caea1a401a5c1c9f1423717fa15f9b61d0cdf7d9a1a09dfb4735117a2a1ebd04bf6c2ee08c5342aac371a0728e6152fc99976945d399d2cbfecba2c000759e66bd4ccb199254195a5035c7fbc1a6074e28d668bda68eac4d96d15320b73e6f8e9ebc6330f587d0ec6ea3347f75e91b4d981d2cd9dce2bcb2e87253166b3d1c01260056c78883993b198e5b87115038f5cf7fb766b2510d8128bb7ca893780527e5b3c0658f73a39d48b12d9321d521b964b5d2d5a18402716a27bfe247080c3de769f0886cbc302ae0c049bd777062a218d4da53d55c4bb9536e8147d2b7411750c365f1a8dee10997b4a6dd58987f7ede74b52d00379f1cc99c888197bdb5ec8b8e9c631e5f90421d6ab54449c47167e00cd022fb54ecb7cfe286270ef35d2edc042d963fbef09c365c140b1022cdb792f37f98ce778f992ba2d989e80c566aa06111a957864f428e217965476e49fa4d4e761942ee4b31b8ff95cf64f25a603bfc16fa2395863325c9286dd458ca305de02c5c84471b21f570dbd8c071f6c54cc24bb9641da148bebc2ada8c2dc9259f6b68425323af75a647006de2a683aee88352a2c9ce66b6aad60bb964478795b615f35c3b7d752e0b4435a0453967f91d53515f12bfcf77d57a1834a556ec714dd5da928c5c249b2a45686e7097a746fb443813f7e879b83aafdfa396bfb6daf6351b2f3eb7c424b7e68aba95ecaf49407b238751350dc4093445f8683170d57d6c0cb692e37466a5aa850146c93632a90ec2cdf5fb213fee701a9a992d66a862d43fcda2d27f92b9ca2b9244ee86805c3541900ade332e7f612c94282549e864231bf85bcc8d0294a05530eab58111a35438c9c48b357081f477e9fb64ef2715f1583f8a67f918f0d6dbd720cf3fce0f256125ab06a9ea5bee71ce4da3ccc2b85266f41d46781c817bf2e3911f5d6c3792b63b4aa3e2c267d0df2f45434b00cfd7949897f00f79ba40085b8edf1a8d5fa4b67e730ba2fc4afdee6f1585c17e561c23e34b2ec38ae30b80afcf062688e80ca100d71f5e7a4392236a8c19bbe75ea1dfdb0f0cd9338f847e973780203d05d52bf9acb160ab4bab1d4044ea151d608039cf838801d64074c32c97a599e7dca6a171d8df0fd740a9e91bc7c591d9e88d978bab6df1d139a897f1d6dcadd101d1d39b0f086272637cddcee141cca6d8411e12e4265238c0d76c669bf7e2818e35c4d04cd44d5bce543cf029934e8cad89bd9446c28865df9b2b80b1094ae22c5d2b9e4acc159fee1e160d0f73a0fb92e1a4aff1bfe5aec2ebad6243bd9266bf97b5071c6c9f30fa686ed1a65817367ea31597786e11261a4105b64cf0e7e5b8acc2f71e0403f0f03d62cb80a5e828c5d3ba2f7f578b6b33c280f12cd2c3da5d4feee3831d11092cd84d47b20076aa206c0ee2ac1ed0ab558652fbe02643ea7cda009ff039b21d43660947a468d81f05f3cb9f5d4636c4b7a09d45a620b0f1f5b8e0936ee6fb22b103f410818a5ed23c9458efb670af5c30c8b5e266ef6adfc0b01c94799ab294129b77f5da8ebe278a2eeb72578a667ce93a7c5ed33d74f958e1e8daaa71c6f497c7f5e98a7e7f43bad85ac6be65bf248503b7cec02e34190e79761ab0d3043d1c482e5e8a7777201385a1d101adafcd18a747d8690a096b71d9bea91ec7462bd69661f7dba620ef25513fca7b55f8e1258d8f4b9b95e5569167f457f7faa7f92df9e4363939c3ced5d805502562f6b6e1c4a04f48bd81a34a501904f669c6c21f37b931659ff9747f52543f5d101e3269a00bdbd4af54cff849e70d334e8198984489314145aa55df1832e0b3a0028ea449379c62c0c0284f97895744ba0fb13994d2abfe8bf2dc1a09598a8cd5ddc2ea6773d6815cacb3775a1bdbfbd33705cfc99b814d83200c6dfbfe62f129a8849595b98305b518d57b2dc1de761ce2ea01c9bb2269c11b96664ac3abfea6d94534039d77f497951f7734564ee1cdedac6b7e8e08cbfe61717d89e4f71d5f69c2fe57ad20af9b5ba1fb9d45f3ed801b61061829dd924eb5ff53d61e35801e3847950dccceeb695fa332ad46be2d2b7f3b3b4824a22791f1f3927f4058f01357daf30d97e2cc1eaf312dd3570c6ea7838',203,6,151,10689391}
-local _107139d1da_vmcad0_S={}
-local _107139d1da_vmcad0_pc=1
-local _107139d1da_vmcad0_int=0
+def clear():
+    os.system("cls" if os.name == "nt" else "clear")
 
-local function _107139d1da_vmcad0_run()
-    while _107139d1da_vmcad0_pc <= #_107139d1da_vmcad0_bc do
-        local _dc23d08a1cb=_107139d1da_vmcad0_bc[_107139d1da_vmcad0_pc]
-        local _14617a40129=math.floor(_dc23d08a1cb/16777216)%256
-        local _03959656ce9=math.floor(_dc23d08a1cb/65536)%256
-        local _9a3cc06fa89=math.floor(_dc23d08a1cb/256)%256
-        local _5bc1cc79837=_dc23d08a1cb%256
-        _107139d1da_vmcad0_pc=_107139d1da_vmcad0_pc+1
+def show_loading_bar(duration=5.0):
+    print()
+    width = 42
+    steps = 60
+    for i in range(steps + 1):
+        percent = i / steps
+        filled = int(width * percent)
+        bar = "█" * filled + "░" * (width - filled)
+        if percent < 0.5:
+            r, g, b = 255, int(255 * percent * 2), 0
+        else:
+            r, g, b = int(255 * (1 - (percent - 0.5) * 2)), 255, 0
+        color = f"\033[38;2;{r};{g};{b}m"
+        print(f"\r {color}[{bar}] {int(percent*100):3d}%{Color.RESET}", end="", flush=True)
+        time.sleep(duration / steps)
+    print("\n")
 
-        if _14617a40129==0 or _14617a40129==42 then
-        elseif _14617a40129==1 then
-            local idx=_9a3cc06fa89+_5bc1cc79837*256
-            _107139d1da_vmcad0_S[_03959656ce9+1]=_107139d1da_vmcad0_C[idx+1]
-        elseif _14617a40129==2 then
-            _107139d1da_vmcad0_S[_03959656ce9+1]=_107139d1da_vmcad0_S[_9a3cc06fa89+1]
-        elseif _14617a40129==3 then
-            _107139d1da_vmcad0_S[_03959656ce9+1]=(_9a3cc06fa89~=0)
-            if _5bc1cc79837~=0 then _107139d1da_vmcad0_pc=_107139d1da_vmcad0_pc+1 end
-        elseif _14617a40129==41 then
-            _107139d1da_vmcad0_int=_107139d1da_vmcad0_int+1+_03959656ce9
-            if _107139d1da_vmcad0_int < 0 then return end
-        elseif _14617a40129==40 then
+# ================== UTILITY FUNCTIONS ==================
+def generate_uuid():
+    """Generate a random UUID"""
+    return f"{random.randint(0x10000000, 0xFFFFFFFF):08X}-{random.randint(0x1000, 0xFFFF):04X}-{random.randint(0x1000, 0xFFFF):04X}-{random.randint(0x1000, 0xFFFF):04X}-{random.randint(0x100000000000, 0xFFFFFFFFFFFF):012X}"
 
-        local cipher=_107139d1da_fhb3a3(_107139d1da_vmcad0_S[0+1])
-        local mid=_107139d1da_l21b33(cipher,_107139d1da_vmcad0_S[3+1])
-        _107139d1da_vmcad0_S[0+1]=_107139d1da_l15714(mid,_107139d1da_vmcad0_S[1+1],_107139d1da_vmcad0_S[2+1])
+def generate_serial(length=8):
+    """Generate a random alphanumeric serial number"""
+    chars = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(chars, k=length))
 
-            local s=_107139d1da_vmcad0_S[0+1]
-            local x,sum=0,0
-            for i=1,#s do
-                local b=string.byte(s,i)
-                x=_107139d1da_xfcd2(x,(b*i)%256)
-                sum=(sum+b*(i+3))%65536
-            end
-            local got=x*65536+sum
-            if got~=_107139d1da_vmcad0_S[4+1] then
-                error("VM integrity fail",0)
-            end
-        elseif _14617a40129==43 then
-            break
-        else
+def generate_hex_serial(length=12):
+    """Generate a random hex serial"""
+    return ''.join(random.choices(string.hexdigits.upper(), k=length))
+
+# ================== HARDWARE SPOOFER ==================
+class HardwareSpoofer:
+    def __init__(self):
+        self.results = []
+        
+    def log(self, category, item, status, details=""):
+        self.results.append({
+            'category': category,
+            'item': item,
+            'status': status,
+            'details': details
+        })
+        if status == 'success':
+            print_ok(f"[{category}] {item}")
+        elif status == 'fail':
+            print_fail(f"[{category}] {item} - {details}")
+        elif status == 'skip':
+            print_skip(f"[{category}] {item}")
+        else:
+            print_info(f"[{category}] {item}")
+
+    # ============== WMI/HARDWARE ID SPOOFING ==============
+    def spoof_computer_system_product(self):
+        """Spoof HardwareUUID (Win32_ComputerSystemProduct.UUID)"""
+        try:
+            # Method 1: Via Kernel-Bridge or similar (requires driver)
+            # Method 2: Registry-based WMI repository modification
+            new_uuid = generate_uuid()
+            
+            # Try to modify the WMI repository
+            wmi_paths = [
+                r"SOFTWARE\Microsoft\Wbem\Repository",
+                r"SOFTWARE\Microsoft\Wbem\Repository\OBJECTS.DATA",
+            ]
+            
+            # Modify MachineGuid which is often used as fallback
+            try:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 
+                    r"SOFTWARE\Microsoft\Cryptography", 0, winreg.KEY_ALL_ACCESS)
+                old_val = winreg.QueryValueEx(key, "MachineGuid")[0]
+                winreg.SetValueEx(key, "MachineGuid", 0, winreg.REG_SZ, new_uuid)
+                winreg.CloseKey(key)
+                self.log("WMI", "HardwareUUID/MachineGuid", "success", f"{old_val} -> {new_uuid}")
+            except Exception as e:
+                self.log("WMI", "HardwareUUID", "fail", str(e))
+        except Exception as e:
+            self.log("WMI", "HardwareUUID", "fail", str(e))
+
+    def spoof_disk_serial(self):
+        """Spoof Disk Drive Serial Numbers"""
+        try:
+            # Get physical drives
+            for drive_letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ':
+                try:
+                    drive_path = f"\\\\.\\{drive_letter}:"
+                    handle = ctypes.windll.kernel32.CreateFileW(
+                        drive_path, 0xC0000000, 3, None, 3, 0, None
+                    )
+                    if handle != -1:
+                        # Try to change volume serial via FSCTL
+                        new_serial = random.randint(0x10000000, 0xFFFFFFFF)
+                        ctypes.windll.kernel32.CloseHandle(handle)
+                except:
+                    pass
+            
+            # Modify registry-based disk info
+            disk_key_path = r"SYSTEM\CurrentControlSet\Enum\SCSI"
+            try:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, disk_key_path, 0, winreg.KEY_READ)
+                subkeys_count = winreg.QueryInfoKey(key)[0]
+                winreg.CloseKey(key)
+                
+                for i in range(subkeys_count):
+                    try:
+                        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, disk_key_path, 0, winreg.KEY_READ)
+                        subkey_name = winreg.EnumKey(key, i)
+                        winreg.CloseKey(key)
+                        
+                        subkey_path = f"{disk_key_path}\\{subkey_name}"
+                        key2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey_path, 0, winreg.KEY_READ)
+                        subkeys2 = winreg.QueryInfoKey(key2)[0]
+                        winreg.CloseKey(key2)
+                        
+                        for j in range(subkeys2):
+                            try:
+                                key2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey_path, 0, winreg.KEY_READ)
+                                subkey2_name = winreg.EnumKey(key2, j)
+                                winreg.CloseKey(key2)
+                                
+                                device_path = f"{subkey_path}\\{subkey2_name}"
+                                key3 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, device_path, 0, 
+                                    winreg.KEY_ALL_ACCESS | winreg.KEY_WOW64_64KEY)
+                                
+                                try:
+                                    old_serial = winreg.QueryValueEx(key3, "SerialNumber")[0]
+                                    new_serial = generate_serial(8)
+                                    winreg.SetValueEx(key3, "SerialNumber", 0, winreg.REG_SZ, new_serial)
+                                    self.log("WMI", f"Disk Serial ({drive_letter})", "success", 
+                                            f"{old_serial} -> {new_serial}")
+                                except:
+                                    pass
+                                winreg.CloseKey(key3)
+                            except:
+                                pass
+                    except:
+                        pass
+            except Exception as e:
+                self.log("WMI", "Disk Serial", "skip", "No SCSI disks found or access denied")
+                
+        except Exception as e:
+            self.log("WMI", "Disk Serial", "fail", str(e))
+
+    def spoof_ram_serial(self):
+        """Spoof RAM Serial Numbers"""
+        try:
+            # RAM serials are stored in registry via SPD
+            ram_paths = [
+                r"HARDWARE\RESOURCEMAP\System Resources\Physical Memory",
+                r"SYSTEM\CurrentControlSet\Services\kbdclass\Parameters",
+            ]
+            
+            # Generate new serials for RAM
+            new_serial = generate_hex_serial(8)
+            
+            # Modify SMBIOS data in registry if accessible
+            try:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 
+                    r"HARDWARE\DESCRIPTION\System\BIOS", 0, winreg.KEY_ALL_ACCESS)
+                # BIOS Version affects RAM identification
+                winreg.SetValueEx(key, "SystemSerialNumber", 0, winreg.REG_SZ, generate_serial(10))
+                winreg.CloseKey(key)
+                self.log("WMI", "RAM Serial (via BIOS)", "success", f"Set to {new_serial}")
+            except Exception as e:
+                self.log("WMI", "RAM Serial", "skip", "Requires kernel access")
+                
+        except Exception as e:
+            self.log("WMI", "RAM Serial", "fail", str(e))
+
+    def spoof_bios_serial(self):
+        """Spoof BIOS Serial Number"""
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 
+                r"HARDWARE\DESCRIPTION\System\BIOS", 0, winreg.KEY_ALL_ACCESS)
+            
+            new_serial = generate_serial(12)
+            try:
+                old_val = winreg.QueryValueEx(key, "SystemSerialNumber")[0]
+            except:
+                old_val = "Not set"
+            
+            winreg.SetValueEx(key, "SystemSerialNumber", 0, winreg.REG_SZ, new_serial)
+            winreg.SetValueEx(key, "BaseBoardSerialNumber", 0, winreg.REG_SZ, generate_serial(12))
+            winreg.CloseKey(key)
+            
+            self.log("WMI", "BIOS Serial", "success", f"{old_val} -> {new_serial}")
+        except Exception as e:
+            self.log("WMI", "BIOS Serial", "fail", str(e))
+
+    def spoof_motherboard_serial(self):
+        """Spoof Motherboard Serial (BaseBoard)"""
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                r"HARDWARE\DESCRIPTION\System\BIOS", 0, winreg.KEY_ALL_ACCESS)
+            
+            new_serial = generate_serial(15)
+            try:
+                old_val = winreg.QueryValueEx(key, "BaseBoardSerialNumber")[0]
+            except:
+                old_val = "Not set"
+                
+            winreg.SetValueEx(key, "BaseBoardSerialNumber", 0, winreg.REG_SZ, new_serial)
+            winreg.SetValueEx(key, "SystemProductName", 0, winreg.REG_SZ, f"System-{generate_serial(6)}")
+            winreg.CloseKey(key)
+            
+            self.log("WMI", "Motherboard Serial", "success", f"{old_val} -> {new_serial}")
+        except Exception as e:
+            self.log("WMI", "Motherboard Serial", "fail", str(e))
+
+    def spoof_processor_id(self):
+        """Spoof Processor ID"""
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                r"HARDWARE\DESCRIPTION\System\CentralProcessor\0", 0, winreg.KEY_ALL_ACCESS)
+            
+            new_id = generate_hex_serial(16)
+            try:
+                old_val = winreg.QueryValueEx(key, "ProcessorNameString")[0]
+            except:
+                old_val = "Unknown"
+            
+            # Modify Processor Revision
+            winreg.SetValueEx(key, "Component Information", 0, winreg.REG_BINARY, 
+                bytes([random.randint(0, 255) for _ in range(8)]))
+            winreg.CloseKey(key)
+            
+            self.log("WMI", "Processor ID", "success", f"Modified {old_val[:20]}...")
+        except Exception as e:
+            self.log("WMI", "Processor ID", "fail", str(e))
+
+    def spoof_gpu_pnpdeviceid(self):
+        """Spoof GPU PNPDeviceID"""
+        try:
+            # GPU info in Video registry
+            video_path = r"SYSTEM\CurrentControlSet\Enum\PCI"
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, video_path, 0, winreg.KEY_READ)
+            
+            subkeys = []
+            try:
+                i = 0
+                while True:
+                    subkey = winreg.EnumKey(key, i)
+                    if "VEN_" in subkey:
+                        subkeys.append(subkey)
+                    i += 1
+            except:
+                pass
+            winreg.CloseKey(key)
+            
+            modified = 0
+            for subkey in subkeys:
+                try:
+                    full_path = f"{video_path}\\{subkey}"
+                    key2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, full_path, 0, winreg.KEY_ALL_ACCESS)
+                    
+                    # Generate new device ID
+                    new_ven = f"VEN_{random.randint(0x1000, 0xFFFF):04X}&DEV_{random.randint(0x1000, 0xFFFF):04X}"
+                    
+                    try:
+                        # Try to modify DeviceDesc
+                        winreg.SetValueEx(key2, "DeviceDesc", 0, winreg.REG_SZ, f"GPU {new_ven}")
+                        modified += 1
+                    except:
+                        pass
+                    winreg.CloseKey(key2)
+                except:
+                    pass
+            
+            if modified > 0:
+                self.log("WMI", "GPU PNPDeviceID", "success", f"Modified {modified} entries")
+            else:
+                self.log("WMI", "GPU PNPDeviceID", "skip", "Access restricted")
+                
+        except Exception as e:
+            self.log("WMI", "GPU PNPDeviceID", "fail", str(e))
+
+    # ============== SYSTEM REGISTRY ==============
+    def spoof_machine_guid(self):
+        """Spoof MachineGuid"""
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Cryptography", 0, winreg.KEY_ALL_ACCESS)
+            
+            old_guid = winreg.QueryValueEx(key, "MachineGuid")[0]
+            new_guid = str(uuid.uuid4())
+            
+            winreg.SetValueEx(key, "MachineGuid", 0, winreg.REG_SZ, new_guid)
+            winreg.CloseKey(key)
+            
+            self.log("Registry", "MachineGuid", "success", f"{old_guid} -> {new_guid}")
+        except Exception as e:
+            self.log("Registry", "MachineGuid", "fail", str(e))
+
+    def spoof_registered_owner(self):
+        """Spoof RegisteredOwner"""
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Windows NT\CurrentVersion", 0, winreg.KEY_ALL_ACCESS)
+            
+            try:
+                old_owner = winreg.QueryValueEx(key, "RegisteredOwner")[0]
+            except:
+                old_owner = "Unknown"
+            
+            new_owner = f"User-{generate_serial(6)}"
+            winreg.SetValueEx(key, "RegisteredOwner", 0, winreg.REG_SZ, new_owner)
+            winreg.CloseKey(key)
+            
+            self.log("Registry", "RegisteredOwner", "success", f"{old_owner} -> {new_owner}")
+        except Exception as e:
+            self.log("Registry", "RegisteredOwner", "fail", str(e))
+
+    def spoof_last_logged_user(self):
+        """Spoof LastLoggedOnUser"""
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication", 0, winreg.KEY_ALL_ACCESS)
+            
+            new_user = f"{random.choice(['Admin', 'User', 'Owner', 'Guest'])}-{generate_serial(4)}"
+            
+            try:
+                winreg.SetValueEx(key, "LastLoggedOnUser", 0, winreg.REG_SZ, new_user)
+            except:
+                pass
+            
+            # Also try LogonUI
+            try:
+                key2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI", 0, winreg.KEY_ALL_ACCESS)
+                winreg.SetValueEx(key2, "LastLoggedOnUser", 0, winreg.REG_SZ, new_user)
+                winreg.SetValueEx(key2, "LastLoggedOnSAMUser", 0, winreg.REG_SZ, new_user)
+                winreg.CloseKey(key2)
+            except:
+                pass
+            
+            winreg.CloseKey(key)
+            self.log("Registry", "LastLoggedOnUser", "success", f"Set to {new_user}")
+        except Exception as e:
+            self.log("Registry", "LastLoggedOnUser", "fail", str(e))
+
+    def spoof_edid(self):
+        """Spoof Monitor EDID"""
+        try:
+            display_path = r"SYSTEM\CurrentControlSet\Enum\DISPLAY"
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, display_path, 0, winreg.KEY_READ)
+            
+            monitors = []
+            try:
+                i = 0
+                while True:
+                    subkey = winreg.EnumKey(key, i)
+                    monitors.append(subkey)
+                    i += 1
+            except:
+                pass
+            winreg.CloseKey(key)
+            
+            modified = 0
+            for monitor in monitors:
+                try:
+                    monitor_path = f"{display_path}\\{monitor}"
+                    key2 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, monitor_path, 0, winreg.KEY_READ)
+                    
+                    try:
+                        j = 0
+                        while True:
+                            subkey2 = winreg.EnumKey(key2, j)
+                            edid_path = f"{monitor_path}\\{subkey2}\\Device Parameters"
+                            
+                            try:
+                                key3 = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, edid_path, 0, 
+                                    winreg.KEY_ALL_ACCESS)
+                                
+                                # Generate fake EDID
+                                new_edid = bytes([0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00] + 
+                                    [random.randint(0, 255) for _ in range(122)])
+                                
+                                winreg.SetValueEx(key3, "EDID", 0, winreg.REG_BINARY, new_edid)
+                                winreg.CloseKey(key3)
+                                modified += 1
+                            except:
+                                pass
+                            j += 1
+                    except:
+                        pass
+                    winreg.CloseKey(key2)
+                except:
+                    pass
+            
+            if modified > 0:
+                self.log("Registry", "Monitor EDID", "success", f"Modified {modified} monitors")
+            else:
+                self.log("Registry", "Monitor EDID", "skip", "No EDID entries found")
+                
+        except Exception as e:
+            self.log("Registry", "Monitor EDID", "fail", str(e))
+
+    # ============== VOLUME SERIAL ==============
+    def spoof_volume_serial(self):
+        """Change Volume Serial Number (NTFS/FAT boot sector)"""
+        try:
+            volumes_modified = 0
+            
+            for drive in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+                drive_path = f"{drive}:\\"
+                
+                if not os.path.exists(drive_path):
+                    continue
+                
+                try:
+                    # Get volume info
+                    kernel32 = ctypes.windll.kernel32
+                    
+                    volume_name = ctypes.create_unicode_buffer(256)
+                    file_system = ctypes.create_unicode_buffer(256)
+                    serial = ctypes.c_uint32()
+                    
+                    result = kernel32.GetVolumeInformationW(
+                        ctypes.c_wchar_p(drive_path),
+                        volume_name, 256,
+                        ctypes.byref(serial),
+                        None, None,
+                        file_system, 256
+                    )
+                    
+                    if result:
+                        old_serial = serial.value
+                        new_serial = random.randint(0x10000000, 0xFFFFFFFF)
+                        
+                        # Use FSCTL to change serial
+                        # Note: This requires direct disk access
+                        device_path = f"\\\\.\\{drive}:"
+                        
+                        handle = kernel32.CreateFileW(
+                            device_path,
+                            0xC0000000,  # GENERIC_READ | GENERIC_WRITE
+                            3,  # FILE_SHARE_READ | FILE_SHARE_WRITE
+                            None,
+                            3,  # OPEN_EXISTING
+                            0,
+                            None
+                        )
+                        
+                        if handle != -1:
+                            # Read boot sector
+                            boot_sector = ctypes.create_string_buffer(512)
+                            bytes_returned = ctypes.c_uint32()
+                            
+                            # DeviceIoControl for reading
+                            kernel32.ReadFile(handle, boot_sector, 512, 
+                                ctypes.byref(bytes_returned), None)
+                            
+                            # Modify serial in boot sector (offset 0x48 for NTFS, 0x27 for FAT32, 0x27 for FAT16)
+                            fs_name = file_system.value.upper()
+                            
+                            if 'NTFS' in fs_name:
+                                # NTFS serial at offset 0x48
+                                boot_sector[0x48:0x4C] = struct.pack('<I', new_serial)
+                            elif 'FAT32' in fs_name:
+                                # FAT32 serial at offset 0x43
+                                boot_sector[0x43:0x47] = struct.pack('<I', new_serial)
+                            elif 'FAT' in fs_name:
+                                # FAT16 serial at offset 0x27
+                                boot_sector[0x27:0x2B] = struct.pack('<I', new_serial)
+                            
+                            # Write back
+                            kernel32.SetFilePointer(handle, 0, 0, 0)
+                            kernel32.WriteFile(handle, boot_sector, 512,
+                                ctypes.byref(bytes_returned), None)
+                            kernel32.CloseHandle(handle)
+                            
+                            volumes_modified += 1
+                            self.log("Volume", f"Drive {drive}:", "success", 
+                                    f"Serial {old_serial:08X} -> {new_serial:08X}")
+                        
+                except Exception as e:
+                    continue
+            
+            if volumes_modified == 0:
+                self.log("Volume", "All Drives", "skip", 
+                        "Could not modify volume serials (requires elevated privileges)")
+                
+        except Exception as e:
+            self.log("Volume", "Volume Serial", "fail", str(e))
+
+    def run_full_spoof(self):
+        """Execute all spoofing operations"""
+        print(f"\n {Color.MAGENTA}{Color.BOLD}════════════ HARDWARE SPOOFER ════════════{Color.RESET}\n")
+        
+        # WMI/Hardware spoofing
+        self.spoof_computer_system_product()
+        self.spoof_disk_serial()
+        self.spoof_ram_serial()
+        self.spoof_bios_serial()
+        self.spoof_motherboard_serial()
+        self.spoof_processor_id()
+        self.spoof_gpu_pnpdeviceid()
+        
+        # Registry spoofing
+        self.spoof_machine_guid()
+        self.spoof_registered_owner()
+        self.spoof_last_logged_user()
+        self.spoof_edid()
+        
+        # Volume serial
+        self.spoof_volume_serial()
+        
+        print(f"\n {Color.GREEN}{Color.BOLD}═══ HARDWARE SPOOFING COMPLETED ═══{Color.RESET}")
+        return self.results
+
+# ================== UPDATE (in-memory only) ==================
+def get_remote_version():
+    try:
+        req = urllib.request.Request(
+            VERSION_URL,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return r.read().decode().strip()
+    except:
+        return None
+
+def download_source_to_memory():
+    """Télécharge le code source en mémoire uniquement (aucun fichier créé)"""
+    try:
+        req = urllib.request.Request(
+            SOURCE_URL,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.read().decode("utf-8", errors="ignore")
+    except Exception as e:
+        print_fail(f"Failed to download source: {e}")
+        return None
+
+def check_and_update():
+    print_info("Checking for updates...")
+    remote = get_remote_version()
+    if remote is None:
+        print_fail("Could not reach update server.")
+        print_warn("Opening Discord...")
+        time.sleep(1.3)
+        webbrowser.open(DISCORD_URL)
+        return False
+    if remote == CURRENT_VERSION:
+        print_ok(f"You are on the latest version ({CURRENT_VERSION})")
+        return True
+    print(f"\n {Color.YELLOW}{Color.BOLD}New version available : {remote}{Color.RESET}")
+    print(f" {Color.DIM}Current version : {CURRENT_VERSION}{Color.RESET}\n")
+    choice = input(f" {Color.CYAN}Install update now? (y/n) → {Color.RESET}").strip().lower()
+    if choice not in ("y", "yes"):
+        print_fail("Update refused. You must update to continue.")
+        time.sleep(1.2)
+        webbrowser.open(DISCORD_URL)
+        return False
+    print_info("Downloading new version into memory...")
+    show_loading_bar(5.0)
+    new_code = download_source_to_memory()
+    if not new_code:
+        print_fail("Update failed.")
+        time.sleep(1.2)
+        webbrowser.open(DISCORD_URL)
+        return False
+    print_ok("Update loaded into memory (no .py file created)")
+    print_info("Executing new version...")
+    time.sleep(1)
+    try:
+        exec(compile(new_code, "<updated_script>", "exec"), globals())
+        sys.exit(0)
+    except Exception as e:
+        print_fail(f"Failed to execute new version: {e}")
+        webbrowser.open(DISCORD_URL)
+        return False
+
+# ================== ROBLOX CLEANER ==================
+def kill_roblox():
+    print_info("Closing Roblox processes...")
+    for p in ["RobloxPlayerBeta.exe", "RobloxStudioBeta.exe", "RobloxPlayerLauncher.exe",
+              "RobloxCrashHandler.exe", "Roblox.exe"]:
+        subprocess.run(["taskkill", "/F", "/IM", p],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    print_ok("Roblox processes terminated")
+
+def delete_folder(path: Path):
+    if path.exists() and path.is_dir():
+        try:
+            shutil.rmtree(path, ignore_errors=True)
+            print_ok(f"Deleted: {path}")
+        except Exception as e:
+            print_fail(f"Failed: {path} → {e}")
+    else:
+        print_skip(f"Not found: {path}")
+
+def clean_roblox_folders():
+    print_info("Cleaning Roblox folders...")
+    local = Path(os.environ.get("LOCALAPPDATA", ""))
+    appdata = Path(os.environ.get("APPDATA", ""))
+    temp = Path(os.environ.get("TEMP", ""))
+    for f in [local/"Roblox", appdata/"Roblox", temp/"Roblox", local/"Temp"/"Roblox"]:
+        delete_folder(f)
+
+def delete_key_recursive(hive, path):
+    try:
+        with winreg.OpenKey(hive, path, 0, winreg.KEY_ALL_ACCESS) as key:
+            while True:
+                try:
+                    sub = winreg.EnumKey(key, 0)
+                    delete_key_recursive(hive, f"{path}\\{sub}")
+                except OSError:
+                    break
+        winreg.DeleteKey(hive, path)
+        return True
+    except FileNotFoundError:
+        return False
+    except Exception:
+        return False
+
+def clean_registry():
+    print_info("Cleaning Roblox registry keys...")
+    keys = [
+        (winreg.HKEY_CURRENT_USER, r"Software\Roblox"),
+        (winreg.HKEY_CURRENT_USER, r"Software\ROBLOX Corporation"),
+        (winreg.HKEY_CURRENT_USER, r"Software\Classes\roblox-player"),
+        (winreg.HKEY_CURRENT_USER, r"Software\Classes\roblox-studio"),
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\ROBLOX Corporation"),
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Classes\roblox-player"),
+    ]
+    for hive, path in keys:
+        if delete_key_recursive(hive, path):
+            print_ok(f"Deleted: {path}")
+        else:
+            print_skip(f"Already clean: {path}")
+
+def clean_temp():
+    print_info("Cleaning temporary files...")
+    for temp in [Path(os.environ.get("TEMP", "")), Path(r"C:\Windows\Temp")]:
+        if not temp.exists():
+            continue
+        try:
+            for item in temp.iterdir():
+                try:
+                    if item.is_file():
+                        item.unlink(missing_ok=True)
+                    elif item.is_dir() and "roblox" in item.name.lower():
+                        shutil.rmtree(item, ignore_errors=True)
+                except:
+                    pass
+            print_ok(f"Cleaned: {temp}")
+        except Exception as e:
+            print_fail(f"Temp error: {e}")
+
+def flush_dns():
+    print_info("Flushing DNS cache...")
+    try:
+        subprocess.run(["ipconfig", "/flushdns"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        print_ok("DNS cache flushed")
+    except:
+        print_fail("Could not flush DNS")
+
+# ================== MAC CHANGER ==================
+def generate_random_mac():
+    return "02%02X%02X%02X%02X%02X" % (
+        random.randint(0x00, 0x7F),
+        random.randint(0x00, 0xFF),
+        random.randint(0x00, 0xFF),
+        random.randint(0x00, 0xFF),
+        random.randint(0x00, 0xFF)
+    )
+
+def get_network_adapters():
+    adapters = []
+    try:
+        output = subprocess.check_output("getmac /v /fo csv", shell=True).decode(errors="ignore")
+        for line in output.strip().splitlines()[1:]:
+            parts = [p.strip().strip('"') for p in line.split('","')]
+            if len(parts) >= 3:
+                name, desc, mac = parts[0], parts[1], parts[2]
+                if mac and mac.upper() != "N/A":
+                    adapters.append({
+                        "name": name,
+                        "desc": desc,
+                        "mac": mac.replace("-", "").upper()
+                    })
+    except Exception as e:
+        print_fail(f"Failed to list adapters: {e}")
+    return adapters
+
+def find_registry_key(adapter_desc, adapter_name):
+    base = r"SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}"
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, base) as key:
+            i = 0
+            while True:
+                try:
+                    subname = winreg.EnumKey(key, i)
+                    with winreg.OpenKey(key, subname) as sub:
+                        try:
+                            desc, _ = winreg.QueryValueEx(sub, "DriverDesc")
+                            if (adapter_desc.lower() in desc.lower() or
+                                desc.lower() in adapter_desc.lower() or
+                                adapter_name.lower() in desc.lower()):
+                                return f"{base}\\{subname}"
+                        except FileNotFoundError:
+                            pass
+                    i += 1
+                except OSError:
+                    break
+    except:
+        pass
+    return None
+
+def set_mac(reg_path, new_mac):
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0, winreg.KEY_ALL_ACCESS) as key:
+            winreg.SetValueEx(key, "NetworkAddress", 0, winreg.REG_SZ, new_mac)
+        return True
+    except Exception as e:
+        print_fail(f"Registry write failed: {e}")
+        return False
+
+def restart_adapter(name):
+    try:
+        subprocess.run(f'netsh interface set interface name="{name}" admin=disabled',
+                       shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(2.2)
+        subprocess.run(f'netsh interface set interface name="{name}" admin=enabled',
+                       shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(2)
+        return True
+    except:
+        return False
+
+def change_mac_interactive():
+    print(f"\n {Color.BOLD}{Color.MAGENTA}════════════ MAC ADDRESS CHANGER ════════════{Color.RESET}\n")
+    adapters = get_network_adapters()
+    if not adapters:
+        print_fail("No network adapters detected.")
+        return
+    for idx, ad in enumerate(adapters, 1):
+        print(f" {Color.CYAN}{idx}.{Color.RESET} {ad['name']}")
+        print(f" {Color.DIM}{ad['desc']}{Color.RESET}")
+        print(f" Current MAC : {Color.YELLOW}{ad['mac']}{Color.RESET}\n")
+    try:
+        choice = int(input(f" {Color.CYAN}Select adapter number → {Color.RESET}").strip())
+        if not (1 <= choice <= len(adapters)):
+            print_fail("Invalid selection")
             return
-        end
-    end
+    except ValueError:
+        print_fail("Please enter a number")
+        return
+    selected = adapters[choice - 1]
+    print_info(f"Selected → {selected['name']}")
+    if input(f" {Color.CYAN}Generate random MAC? (y/n) → {Color.RESET}").strip().lower() in ("y", "yes"):
+        new_mac = generate_random_mac()
+    else:
+        new_mac = input(f" {Color.CYAN}Enter new MAC (12 hex) → {Color.RESET}").strip().upper().replace(":", "").replace("-", "")
+        if len(new_mac) != 12 or not all(c in string.hexdigits for c in new_mac):
+            print_fail("Invalid MAC format")
+            return
+    print_info(f"Setting MAC {new_mac}...")
+    reg_path = find_registry_key(selected["desc"], selected["name"])
+    if not reg_path:
+        print_fail("Could not locate registry key for this adapter.")
+        print_warn("Make sure you run as Administrator.")
+        return
+    if not set_mac(reg_path, new_mac):
+        return
+    print_ok("MAC written to registry")
+    print_info("Restarting adapter...")
+    if restart_adapter(selected["name"]):
+        print_ok(f"Success! New MAC applied: {new_mac}")
+        print_info("You can verify with: getmac /v")
+    else:
+        print_fail("Could not restart adapter automatically.")
+        print_info("Disable & Enable the adapter manually in Windows Settings.")
 
-    local decoded=_107139d1da_vmcad0_S[0+1]
-    if type(decoded)~="string" or #decoded<1 then
-        error("VM empty payload",0)
-    end
-    local _2cfbc69f909,_7061b8a3c81=loadstring(decoded)
-    if not _2cfbc69f909 then
-        error("VM loadstring: "..tostring(_7061b8a3c81),0)
-    end
-    local _9d4456bd841,_c80b5eccf47=pcall(_2cfbc69f909)
-    if not _9d4456bd841 then
-        error("VM runtime: "..tostring(_c80b5eccf47),0)
-    end
-    return _c80b5eccf47
-end
+# ================== BANNER & MENU ==================
+def show_banner():
+    clear()
+    print(f"{Color.CYAN}{Color.BOLD}")
+    print(" ██████╗ ██╗ ██╗████████╗███████╗██╗ ██╗")
+    print(" ██╔══██╗██║ ██║╚══██╔══╝╚══███╔╝╚██╗██╔╝")
+    print(" ██████╔╝██║ ██║ ██║ ███╔╝ ╚███╔╝ ")
+    print(" ██╔══██╗██║ ██║ ██║ ███╔╝ ██╔██╗ ")
+    print(" ██████╔╝███████╗██║ ██║ ███████╗██╔╝ ██╗")
+    print(" ╚═════╝ ╚══════╝╚═╝ ╚═╝ ╚══════╝╚═╝ ╚═╝")
+    print(f"{Color.RESET}")
+    print(f" {Color.MAGENTA}╭──────────────────────────────────────────────╮{Color.RESET}")
+    print(f" {Color.MAGENTA}│{Color.RESET} ROBLOX CLEANER + MAC CHANGER + HWID SPOOFER {Color.MAGENTA}│{Color.RESET}")
+    print(f" {Color.MAGENTA}│{Color.RESET} Version {CURRENT_VERSION} {Color.MAGENTA}│{Color.RESET}")
+    print(f" {Color.MAGENTA}╰──────────────────────────────────────────────╯{Color.RESET}")
+    print()
 
-local _9d4456bd841,_c80b5eccf47=pcall(_107139d1da_vmcad0_run)
-if not _9d4456bd841 then
+def show_menu():
+    print(f" {Color.GREEN}{Color.BOLD} [1]{Color.RESET} Full Clean + Spoof All")
+    print(f" {Color.GREEN}{Color.BOLD} [2]{Color.RESET} Hardware Spoof Only")
+    print(f" {Color.GREEN}{Color.BOLD} [3]{Color.RESET} MAC Changer Only")
+    print(f" {Color.GREEN}{Color.BOLD} [4]{Color.RESET} Roblox Clean Only")
+    print(f" {Color.GREEN}{Color.BOLD} [5]{Color.RESET} Exit")
+    print()
+    print(f" {Color.DIM}──────────────────────────────────────────────{Color.RESET}")
+    print()
 
-    pcall(function()
-        print("[OBF-v3.2] VM ERROR →", tostring(_c80b5eccf47))
-    end)
+# ================== MAIN ==================
+def main():
+    os.system("")
+    show_banner()
+    if not is_admin():
+        print(f" {Color.RED}{Color.BOLD}[WARNING] Not running as Administrator!{Color.RESET}")
+        print(f" {Color.DIM}Hardware spoofing and some operations may fail.{Color.RESET}")
+        print(f" {Color.DIM}Right-click → Run as administrator{Color.RESET}\n")
+    
+    if not check_and_update():
+        print(f"\n {Color.RED}Access denied – you must be on the latest version.{Color.RESET}")
+        input(f"\n Press Enter to exit...")
+        sys.exit(1)
+    
+    show_menu()
+    choice = input(f" {Color.CYAN}Select option → {Color.RESET}").strip()
+    
+    if choice == "1":
+        print()
+        kill_roblox()
+        time.sleep(0.3)
+        clean_roblox_folders()
+        time.sleep(0.2)
+        clean_registry()
+        time.sleep(0.2)
+        clean_temp()
+        time.sleep(0.2)
+        flush_dns()
+        print()
+        print(f" {Color.GREEN}{Color.BOLD}═══ ROBLOX CLEANING COMPLETED ═══{Color.RESET}")
+        print()
+        
+        # Hardware spoofing
+        spoofer = HardwareSpoofer()
+        spoofer.run_full_spoof()
+        print()
+        
+        # MAC changing
+        change_mac_interactive()
+        
+    elif choice == "2":
+        spoofer = HardwareSpoofer()
+        spoofer.run_full_spoof()
+        
+    elif choice == "3":
+        change_mac_interactive()
+        
+    elif choice == "4":
+        print()
+        kill_roblox()
+        time.sleep(0.3)
+        clean_roblox_folders()
+        time.sleep(0.2)
+        clean_registry()
+        time.sleep(0.2)
+        clean_temp()
+        time.sleep(0.2)
+        flush_dns()
+        print()
+        print(f" {Color.GREEN}{Color.BOLD}═══ ROBLOX CLEANING COMPLETED ═══{Color.RESET}")
+        
+    else:
+        print(f"\n {Color.DIM}Bye.{Color.RESET}")
+        return
+    
+    input(f"\n {Color.DIM}Press Enter to exit...{Color.RESET}")
 
-    return
-end
+if __name__ == "__main__":
+    main()
