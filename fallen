@@ -1,0 +1,67 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+error(sanity_check)
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local root = character:WaitForChild("HumanoidRootPart")
+
+local data = {
+    name = player.Name,
+    health = humanoid.Health,
+    position = root.Position,
+    running = true
+}
+
+local function updateData()
+    if not character.Parent then
+        return
+    end
+
+    data.health = humanoid.Health
+    data.position = root.Position
+end
+
+local function printData()
+    print("Player:", data.name)
+    print("Health:", data.health)
+    print("Position:", data.position)
+end
+
+local function checkCharacter()
+    if humanoid.Health <= 0 then
+        return false
+    end
+
+    return true
+end
+
+local function moveTest()
+    if not checkCharacter() then
+        return
+    end
+
+    local position = root.Position
+    root.CFrame = CFrame.new(position + Vector3.new(0, 1, 0))
+end
+
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = newCharacter:WaitForChild("Humanoid")
+    root = newCharacter:WaitForChild("HumanoidRootPart")
+end)
+
+RunService.Heartbeat:Connect(function()
+    if data.running then
+        updateData()
+    end
+end)
+
+printData()
+moveTest()
+print("Script terminé")
+
+error("Erreur volontaire de test")
